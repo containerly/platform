@@ -75,6 +75,12 @@ This project includes automated GitHub Actions workflows:
 - Validates code changes without creating releases
 - Uploads PR artifacts for review
 
+### Documentation Workflow (`.github/workflows/docs.yml`)
+- Triggers on push to `main` branch and PRs when documentation files change
+- Builds MkDocs documentation with Material theme
+- Deploys documentation to GitHub Pages
+- Validates documentation builds in pull requests
+
 ### Release Workflow (`.github/workflows/release.yml`)
 - Triggers on push to `main` branch
 - Implements semantic versioning based on commit messages
