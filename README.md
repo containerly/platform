@@ -103,3 +103,36 @@ Or use the provided installation script:
 ```bash
 ./script/install
 ```
+
+## Developer Documentation
+
+For comprehensive developer documentation, including detailed setup instructions, architecture overview, and operational procedures, see the [documentation site](docs/).
+
+### Documentation Sections
+
+- **[Getting Started](docs/getting-started.md)** - Set up your development environment
+- **[Architecture](docs/architecture.md)** - Understand the system design and components  
+- **[Development](docs/development.md)** - Development workflows and best practices
+- **[Contributing](docs/contributing.md)** - How to contribute to the project
+- **[Operations](docs/operations.md)** - Administrative procedures and operational tasks
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[API Reference](docs/api-reference.md)** - Technical reference documentation
+
+### Building Documentation
+
+To build and serve the documentation locally:
+
+```bash
+# Install MkDocs and dependencies
+pip install mkdocs mkdocs-material pymdown-extensions
+
+# Serve documentation locally
+mkdocs serve
+
+# Build static documentation
+mkdocs build
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to get started, development workflows, and our code of conduct.
