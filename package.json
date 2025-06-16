@@ -1,6 +1,6 @@
 {
   "name": "@containerly/platform",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "A CDK8s TypeScript project that generates Kubernetes manifests for deploying a comprehensive platform with various operators including Flux, Grafana, Prometheus, Loki, Strimzi Kafka, MinIO, and Elastic Cloud ECK.",
   "main": "main.js",
   "types": "main.ts",
