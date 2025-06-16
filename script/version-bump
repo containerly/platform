@@ -29,8 +29,8 @@ NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
 
 echo "New version: $NEW_VERSION"
 
-# Stage the package.json changes
-git add package.json
+# Stage the package.json and package-lock.json changes
+git add package.json package-lock.json
 
 # Create commit message
 if [[ -n "$COMMIT_MSG" ]]; then
