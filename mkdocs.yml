@@ -19,6 +19,8 @@ nav:
   - Observability:
     - Prometheus Operator CRs: observability/prometheus-operator-crs.md
     - Grafana Operator CRs: observability/grafana-operator-crs.md
+  - Messaging:
+    - Strimzi Operator CRs: messaging/strimzi-operator-crs.md
 
 theme:
   name: material
