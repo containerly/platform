@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Version bumping utility script
+# Usage: ./script/version-bump [patch|minor|major] [commit-message]
+
+set -e
+
+# Default to patch if no argument provided
+BUMP_TYPE=${1:-patch}
+COMMIT_MSG=${2:-""}
+
+# Validate bump type
+if [[ ! "$BUMP_TYPE" =~ ^(patch|minor|major)$ ]]; then
+    echo "Error: Invalid bump type. Use 'patch', 'minor', or 'major'"
+    exit 1
+fi
+
+echo "Current version: $(node -p "require('./package.json').version")"
+
+# Check if working directory is clean
+if [[ -n $(git status --porcelain) ]]; then
+    echo "Error: Working directory is not clean. Please commit or stash changes first."
+    exit 1
+fi
+
+# Bump version using npm version
+echo "Bumping $BUMP_TYPE version..."
+NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+
+echo "New version: $NEW_VERSION"
+
+# Stage the package.json changes
+git add package.json
+
+# Create commit message
+if [[ -n "$COMMIT_MSG" ]]; then
+    FULL_COMMIT_MSG="$COMMIT_MSG
+
+Version bump to $NEW_VERSION"
+else
+    case "$BUMP_TYPE" in
+        patch)
+            FULL_COMMIT_MSG="fix: version bump to $NEW_VERSION"
+            ;;
+        minor)
+            FULL_COMMIT_MSG="feat: version bump to $NEW_VERSION"
+            ;;
+        major)
+            FULL_COMMIT_MSG="feat!: version bump to $NEW_VERSION
+
+BREAKING CHANGE: Major version bump"
+            ;;
+    esac
+fi
+
+# Commit the version bump
+git commit -m "$FULL_COMMIT_MSG"
+
+echo "Version bumped successfully to $NEW_VERSION"
+echo "To push the changes and trigger release, run: git push origin main"
