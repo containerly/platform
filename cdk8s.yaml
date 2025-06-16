@@ -1,0 +1,4 @@
+language: typescript
+app: npx ts-node main.ts
+imports:
+  - https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.32.0/crds.yaml

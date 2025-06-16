@@ -1,0 +1,3 @@
+#!/bin/bash
+
+kubectl delete -f dist/containerly.k8s.yaml

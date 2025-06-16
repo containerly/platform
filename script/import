@@ -1,0 +1,5 @@
+#!/bin/bash
+
+OLM_VERSION="0.32.0"
+
+cdk8s import -l typescript https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v${OLM_VERSION}/crds.yaml

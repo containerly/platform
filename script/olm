@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check if operator-sdk is installed
+if ! command -v operator-sdk &> /dev/null
+then
+    echo "operator-sdk not found. Installing..."
+    brew install operator-sdk
+else
+    echo "operator-sdk is already installed. Proceeding..."
+fi
+
+# Install OLM
+operator-sdk olm install

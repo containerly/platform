@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Delete Kubernetes resources and wait for completion
+kubectl delete -f dist/platform.k8s.yaml --wait
+
+# Run npm synth command
+npm run synth
+
+# Apply Kubernetes resources and wait for them to be ready
+kubectl apply -f dist/platform.k8s.yaml
+kubectl wait --for=condition=available --timeout=120s deployment --all
