@@ -14,6 +14,8 @@ nav:
   - Version Management: version-management.md
   - Troubleshooting: troubleshooting.md
   - API Reference: api-reference.md
+  - Flux:
+    - Custom Resources: flux/flux-crs.md
 
 theme:
   name: material
