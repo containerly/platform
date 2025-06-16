@@ -199,20 +199,38 @@ Before deploying to a cluster, always:
 
 ## Next Steps
 
-Once you have the development environment set up:
+Great! You now have the Platform CDK8s development environment ready. Here's your progressive learning path:
 
-- Read the [Architecture](architecture.md) documentation to understand system design
-- Review [Development](development.md) guidelines for coding standards
-- Check [Contributing](contributing.md) for how to submit changes
-- Explore [Operations](operations.md) for deployment and management procedures
+### :mag: **Understanding the Platform** (5-10 minutes)
+- **[Architecture Overview](architecture.md)** - Learn how all components work together
+- **[Platform Components](flux/index.md)** - Explore individual platform capabilities
+
+### :construction_worker: **Development Workflows** (10-15 minutes)  
+- **[Development Guide](development.md)** - Coding standards, testing, and build processes
+- **[Contributing Guide](contributing.md)** - How to submit changes and improvements
+
+### :rocket: **Deployment & Operations** (15-20 minutes)
+- **[Operations Guide](operations.md)** - Deploy and manage the platform
+- **[Troubleshooting](troubleshooting.md)** - Handle common issues
+
+### :books: **Deep Dive** (As needed)
+- **[Flux GitOps](flux/index.md)** - Continuous deployment workflows
+- **[Observability](observability/index.md)** - Monitoring and metrics
+- **[Messaging](messaging/index.md)** - Event streaming with Kafka
+- **[API Reference](api-reference.md)** - Complete technical reference
+
+---
 
 ## Getting Help
 
 If you encounter issues during setup:
 
-1. Check the [Troubleshooting](troubleshooting.md) guide
-2. Review existing [GitHub Issues](https://github.com/containerly/platform/issues)
-3. Create a new issue with detailed error information
+1. **:mag: Quick Check**: [Troubleshooting Guide](troubleshooting.md) - Common issues and solutions
+2. **:octocat: Community**: [GitHub Issues](https://github.com/containerly/platform/issues) - Existing known issues
+3. **:question: Report Issue**: Create a new issue with:
+   - Your operating system and Node.js version
+   - Complete error messages and stack traces
+   - Steps to reproduce the problem
 
 ## Environment Variables
 
