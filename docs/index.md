@@ -76,4 +76,4 @@ This project is licensed under the Apache License 2.0. See the LICENSE file for 
 
 ---
 
-This documentation is maintained alongside the codebase. When making changes to the platform, please update the relevant documentation sections to keep them current and accurate.
+This documentation is maintained alongside the codebase and automatically deployed to GitHub Pages when changes are pushed to the main branch. When making changes to the platform, please update the relevant documentation sections to keep them current and accurate.
