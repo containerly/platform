@@ -93,6 +93,17 @@ jobs:
           # Update package.json
           npm version $NEW_VERSION --no-git-tag-version
 
+      - name: Commit version changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.version }} [skip ci]" || exit 0
+
+      - name: Push version changes
+        run: |
+          git push origin main
+
       - name: Publish to GitHub Packages
         run: npm publish
         env:
