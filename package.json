@@ -1,6 +1,6 @@
 {
   "name": "@containerly/platform",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A CDK8s TypeScript project that generates Kubernetes manifests for deploying a comprehensive platform with various operators including Flux, Grafana, Prometheus, Loki, Strimzi Kafka, MinIO, and Elastic Cloud ECK.",
   "main": "main.js",
   "types": "main.ts",
@@ -38,7 +38,12 @@
     "test": "jest",
     "build": "npm run compile && npm run test && npm run synth",
     "upgrade": "npm i cdk8s@latest cdk8s-cli@latest",
-    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next"
+    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next",
+    "version:patch": "./script/version-bump patch",
+    "version:minor": "./script/version-bump minor",
+    "version:major": "./script/version-bump major",
+    "version:check": "node -p \"require('./package.json').version\"",
+    "version:dry-run": "npm version --dry-run"
   },
   "dependencies": {
     "cdk8s": "^2.69.73",

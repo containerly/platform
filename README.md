@@ -123,6 +123,7 @@ For comprehensive developer documentation, including detailed setup instructions
 - **[Operations](docs/operations.md)** - Administrative procedures and operational tasks
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 - **[API Reference](docs/api-reference.md)** - Technical reference documentation
+- **[Version Management](docs/version-management.md)** - Automated and manual version bumping guide
 
 ### Building Documentation
 
