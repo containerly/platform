@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Synthesize CDK8s
+        run: npm run synth
+
+      - name: Upload synthesized manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubernetes-manifests-node-${{ matrix.node-version }}
+          path: dist/
+          retention-days: 7
