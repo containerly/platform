@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write  # Required to create releases and upload assets
+  packages: write  # Required to publish to GitHub Packages
 
 jobs:
   release:
@@ -24,6 +25,8 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@containerly'
 
       - name: Install dependencies
         run: npm ci
@@ -90,6 +93,11 @@ jobs:
           # Update package.json
           npm version $NEW_VERSION --no-git-tag-version
 
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -102,6 +110,13 @@ jobs:
             ## Changes
             
             ${{ github.event.head_commit.message }}
+            
+            ## NPM Package
+            
+            This release is also published as an NPM package:
+            ```bash
+            npm install @containerly/platform@${{ steps.bump.outputs.version }}
+            ```
             
             ## Generated Kubernetes Manifests
             

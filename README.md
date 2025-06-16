@@ -9,7 +9,21 @@ A CDK8s TypeScript project that generates Kubernetes manifests for deploying a c
 - Node.js 18.x or 20.x
 - npm
 
-### Installation
+### NPM Package Installation
+
+This project is published as an NPM package on GitHub Packages. You can install it using:
+
+```bash
+# Configure npm to use GitHub Packages for @containerly scope
+npm config set @containerly:registry https://npm.pkg.github.com
+
+# Install the package
+npm install @containerly/platform
+```
+
+For development, you can also clone and build locally:
+
+### Local Development Installation
 
 ```bash
 npm install
@@ -65,6 +79,7 @@ This project includes automated GitHub Actions workflows:
 - Triggers on push to `main` branch
 - Implements semantic versioning based on commit messages
 - Automatically creates GitHub releases with synthesized manifests
+- Publishes NPM package to GitHub Packages (@containerly/platform)
 
 #### Commit Message Conventions
 

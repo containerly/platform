@@ -1,10 +1,35 @@
 {
-  "name": "platform",
+  "name": "@containerly/platform",
   "version": "1.0.0",
+  "description": "A CDK8s TypeScript project that generates Kubernetes manifests for deploying a comprehensive platform with various operators including Flux, Grafana, Prometheus, Loki, Strimzi Kafka, MinIO, and Elastic Cloud ECK.",
   "main": "main.js",
   "types": "main.ts",
   "license": "Apache-2.0",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/containerly/platform.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "keywords": [
+    "cdk8s",
+    "kubernetes",
+    "typescript",
+    "operators",
+    "flux",
+    "grafana",
+    "prometheus",
+    "loki",
+    "kafka",
+    "minio",
+    "elasticsearch"
+  ],
+  "author": "Containerly",
+  "bugs": {
+    "url": "https://github.com/containerly/platform/issues"
+  },
+  "homepage": "https://github.com/containerly/platform#readme",
   "scripts": {
     "import": "cdk8s import",
     "synth": "cdk8s synth",
