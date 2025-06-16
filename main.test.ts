@@ -1,10 +1,10 @@
-import {MyChart} from './main';
+import {Platform} from './main';
 import {Testing} from 'cdk8s';
 
-describe('Placeholder', () => {
-  test('Empty', () => {
+describe('Platform', () => {
+  test('Should synthesize correctly', () => {
     const app = Testing.app();
-    const chart = new MyChart(app, 'test-chart');
+    const chart = new Platform(app, 'test-chart');
     const results = Testing.synth(chart)
     expect(results).toMatchSnapshot();
   });
