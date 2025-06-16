@@ -17,7 +17,8 @@ nav:
   - Flux:
     - Custom Resources: flux/flux-crs.md
   - Observability:
-    - Prometheus Operator CRs: observability/prometheus-operator-crs.md
+  - Prometheus Operator CRs: observability/prometheus-operator-crs.md
+  - Grafana Operator CRs: observability/grafana-operator-crs.md
 
 theme:
   name: material
