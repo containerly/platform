@@ -1,7 +1,9 @@
-name: Render and Release Kustomize Manifests
+name: Render and Release Manifests
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
   workflow_dispatch:
@@ -31,7 +33,7 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh | bash
           sudo mv kustomize /usr/local/bin/
-      - name: Get next patch version
+      - name: Get next version
         id: version
         run: |
           # Get latest tag (vX.Y.Z) or default to v0.0.0
@@ -39,12 +41,26 @@ jobs:
           if [[ -z "$latest_tag" ]]; then
             latest_tag="v0.0.0"
           fi
-          # If this is a tag push, use that version, else bump patch
+          # If this is a tag push, use that version, else bump patch/minor/major based on commit message
           if [[ "${GITHUB_REF}" =~ refs/tags/v([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
             version="${GITHUB_REF##*/}"
           else
             IFS='.' read -r major minor patch <<< "${latest_tag#v}"
-            patch=$((patch+1))
+            # Default to patch bump
+            bump="patch"
+            # Check commit messages for #major or #minor
+            if git log -1 --pretty=%B | grep -q '#major'; then
+              bump="major"
+            elif git log -1 --pretty=%B | grep -q '#minor'; then
+              bump="minor"
+            fi
+            if [[ "$bump" == "major" ]]; then
+              major=$((major+1)); minor=0; patch=0
+            elif [[ "$bump" == "minor" ]]; then
+              minor=$((minor+1)); patch=0
+            else
+              patch=$((patch+1))
+            fi
             version="v${major}.${minor}.${patch}"
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
