@@ -1,6 +1,9 @@
+# yamllint disable
+---
 site_name: Platform CDK8s Developer Documentation
 site_description: Developer documentation for the Containerly Platform CDK8s project
-site_url: https://containerly.github.io/platform/
+site_url:
+  https://containerly.github.io/platform/
 repo_url: https://github.com/containerly/platform
 repo_name: containerly/platform
 edit_uri: edit/main/docs/
@@ -12,28 +15,28 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started:
-    - Overview: getting-started.md
-    - Architecture: architecture.md
+      - Overview: getting-started.md
+      - Architecture: architecture.md
   - Development:
-    - Development Guide: development.md
-    - Contributing: contributing.md
-    - Version Management: version-management.md
+      - Development Guide: development.md
+      - Contributing: contributing.md
+      - Version Management: version-management.md
   - Platform Components:
-    - GitOps with Flux:
-      - Overview: flux/index.md
-      - Custom Resources: flux/flux-crs.md
-    - Observability:
-      - Overview: observability/index.md
-      - Prometheus Operator CRs: observability/prometheus-operator-crs.md
-      - Grafana Operator CRs: observability/grafana-operator-crs.md
-    - Messaging:
-      - Overview: messaging/index.md
-      - Strimzi Operator CRs: messaging/strimzi-operator-crs.md
+      - GitOps with Flux:
+          - Overview: flux/index.md
+          - Custom Resources: flux/flux-crs.md
+      - Observability:
+          - Overview: observability/index.md
+          - Prometheus Operator CRs: observability/prometheus-operator-crs.md
+          - Grafana Operator CRs: observability/grafana-operator-crs.md
+      - Messaging:
+          - Overview: messaging/index.md
+          - Strimzi Operator CRs: messaging/strimzi-operator-crs.md
   - Operations:
-    - Operations Guide: operations.md
-    - Troubleshooting: troubleshooting.md
+      - Operations Guide: operations.md
+      - Troubleshooting: troubleshooting.md
   - Reference:
-    - API Reference: api-reference.md
+      - API Reference: api-reference.md
 
 theme:
   name: material
