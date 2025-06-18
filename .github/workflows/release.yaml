@@ -1,0 +1,190 @@
+# yamllint disable
+---
+name: Automated Release
+
+"on":
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release:
+    if: >
+      github.event_name == 'push' ||
+      (github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release @semantic-release/changelog \
+            @semantic-release/git @semantic-release/github \
+            conventional-changelog-conventionalcommits
+
+      - name: Validate Kustomize manifests
+        run: |
+          # Install kustomize
+          KUSTOMIZE_URL="https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
+          curl -s "$KUSTOMIZE_URL" | bash
+          sudo mv kustomize /usr/local/bin/
+
+          # Validate base manifests
+          kustomize build base/ > /dev/null
+          echo "✅ Base manifests validated"
+
+          # Validate development overlay
+          kustomize build overlays/development/ > /dev/null
+          echo "✅ Development overlay validated"
+          # Validate production overlay
+          kustomize build overlays/production/ > /dev/null
+          echo "✅ Production overlay validated"
+
+      - name: Generate Kubernetes Manifests
+        run: |
+          # Create manifests directory
+          mkdir -p manifests
+
+          # Function to generate manifest if not empty
+          generate_manifest() {
+            local overlay_path="$1"
+            local manifest_file="$2"
+            local description="$3"
+
+            local temp_output
+            temp_output=$(kustomize build "$overlay_path")
+
+            if [ -n "$temp_output" ] && [ "$temp_output" != "" ]; then
+              echo "$temp_output" > "$manifest_file"
+              file_lines=$(wc -l < "$manifest_file")
+              echo "✅ $description generated ($file_lines lines)"
+            else
+              echo "ℹ️  $description skipped (no resources found)"
+            fi
+          }
+
+          # Generate manifests only if they contain content
+          generate_manifest "base/" "manifests/base.yaml" "Base manifests"
+          generate_manifest "overlays/development/" \
+            "manifests/development.yaml" "Development manifests"
+          generate_manifest "overlays/production/" \
+            "manifests/production.yaml" "Production manifests"
+
+          # Show what manifests were created
+          if ls manifests/*.yaml 1> /dev/null 2>&1; then
+            echo "📦 Generated manifest files:"
+            ls -la manifests/
+          else
+            echo "ℹ️  No manifest files generated (no resources found)"
+          fi
+
+      - name: Prepare Release Configuration
+        # yamllint disable-line rule:line-length
+        run: |
+          # Create dynamic release configuration based on available manifests
+          cat > .releaserc.json << 'EOF'
+          {
+            "branches": ["main", "master"],
+            "plugins": [
+              "@semantic-release/commit-analyzer",
+              "@semantic-release/release-notes-generator",
+              [
+                "@semantic-release/changelog",
+                {
+                  "changelogFile": "CHANGELOG.md"
+                }
+              ],
+              [
+                "@semantic-release/git",
+                {
+                  "assets": ["CHANGELOG.md", "package.json"],
+                  "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+                }
+              ],
+              [
+                "@semantic-release/github",
+                {
+                  "assets": []
+                }
+              ]
+            ],
+            "preset": "conventionalcommits",
+            "releaseRules": [
+              {"type": "feat", "release": "minor"},
+              {"type": "fix", "release": "patch"},
+              {"type": "docs", "release": "patch"},
+              {"type": "style", "release": "patch"},
+              {"type": "refactor", "release": "patch"},
+              {"type": "perf", "release": "patch"},
+              {"type": "test", "release": "patch"},
+              {"type": "chore", "release": "patch"},
+              {"type": "ci", "release": "patch"},
+              {"type": "build", "release": "patch"},
+              {"breaking": true, "release": "major"}
+            ]
+          }
+          EOF
+
+          # Add manifest assets if they exist
+          # yamllint disable rule:line-length
+          if [ -f "manifests/base.yaml" ]; then
+            echo "Adding base manifest to release assets"
+            jq '.plugins[4][1].assets += [{
+              "path": "manifests/base.yaml",
+              "name": "kubernetes-base-\u0024{nextRelease.gitTag}.yaml",
+              "label": "Kubernetes Base Manifests"
+            }]' .releaserc.json > .releaserc.tmp
+            mv .releaserc.tmp .releaserc.json
+          fi
+
+          if [ -f "manifests/development.yaml" ]; then
+            echo "Adding development manifest to release assets"
+            jq '.plugins[4][1].assets += [{"path": "manifests/development.yaml", "name": "kubernetes-development-${nextRelease.gitTag}.yaml", "label": "Kubernetes Development Manifests"}]' .releaserc.json > .releaserc.tmp
+            mv .releaserc.tmp .releaserc.json
+          fi
+
+          if [ -f "manifests/production.yaml" ]; then
+            echo "Adding production manifest to release assets"
+            jq '.plugins[4][1].assets += [{
+              "path": "manifests/production.yaml",
+              "name": "kubernetes-production-\u0024{nextRelease.gitTag}.yaml",
+              "label": "Kubernetes Production Manifests"
+            }]' .releaserc.json > .releaserc.tmp
+            mv .releaserc.tmp .releaserc.json
+          fi
+          # yamllint enable rule:line-length
+
+          echo "Final release configuration:"
+          cat .releaserc.json
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Run semantic release
+          npx semantic-release
