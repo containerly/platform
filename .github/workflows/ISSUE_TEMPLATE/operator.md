@@ -6,22 +6,15 @@ labels: ["enhancement", "operator"]
 assignees: ""
 ---
 
-<!--
-ℹ️  One operator per issue, please.
-Fill in every required section (⚡).  Delete any example text after reading it.
--->
-
 ## ⚡ Operator name
 
 `grafana-operator` / `flux` / `prometheus-operator` / …
 
----
 
 ## ⚡ Upstream source / registry URL
 
 *Example:* <https://github.com/grafana-operator/grafana-operator>
 
----
 
 ## ⚡ Platform scope  
 _Select all that apply_
@@ -32,19 +25,15 @@ _Select all that apply_
 - [ ] Observability
 - [ ] Other: …
 
----
 
 ## ⚡ Problem / capability gap
 
 > _Explain what the platform can’t do today._
 
----
 
 ## ⚡ Proposed solution
 
 *Key CRDs introduced, desired namespace, install method (Helm, OLM, raw YAML), sample manifest snippet, etc.*
-
----
 
 ### Default configuration / Helm values (optional)
 
