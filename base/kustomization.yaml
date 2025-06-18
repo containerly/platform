@@ -2,4 +2,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - https://raw.githubusercontent.com/containerly/operator/refs/heads/main/overlays/development/kustomization.yaml
+  - https://operatorhub.io/install/flux-operator.yaml
