@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/containerly/platform/compare/v1.1.7...v1.2.0) (2025-06-18)
+
+### Features
+
+* **fluxinstance:** Create flux-instance.yaml ([26ea5dd](https://github.com/containerly/platform/commit/26ea5dd6a6c4c328681c62c94e9340463e700693))
+
 ## [1.1.7](https://github.com/containerly/platform/compare/v1.1.6...v1.1.7) (2025-06-18)
 
 ### Bug Fixes
