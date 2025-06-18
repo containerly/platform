@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/containerly/platform/compare/v1.2.0...v1.2.1) (2025-06-18)
+
+### Bug Fixes
+
+* **fluxinstance:** Update kustomization.yaml ([ec96cfd](https://github.com/containerly/platform/commit/ec96cfd7ca0467753167d8780d3b4aa87f514f89))
+
 ## [1.2.0](https://github.com/containerly/platform/compare/v1.1.7...v1.2.0) (2025-06-18)
 
 ### Features
