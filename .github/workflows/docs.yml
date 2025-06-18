@@ -1,17 +1,19 @@
+# yamllint disable-line document-start
 ---
+name: Build and Deploy Documentation
+
 "on":
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
       - '.github/workflows/docs.yml'
   pull_request:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
-      - '.github/workflows/docs.yml'
 
 permissions:
   contents: read
@@ -26,50 +28,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
-      - name: Install MkDocs and dependencies
+      - name: Install dependencies
         run: |
-          pip install mkdocs mkdocs-material pymdown-extensions
+          pip install mkdocs-material mkdocstrings mkdocs-material[imaging]
+          pip install mkdocs-git-revision-date-localized-plugin
+          pip install mkdocs-git-committers-plugin-2
 
       - name: Build documentation
-        run: mkdocs build
+        run: |
+          mkdocs build --strict
 
-      - name: Upload documentation artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        if: >
+          github.event_name == 'push' &&
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: documentation-site
           path: site/
-          retention-days: 7
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download documentation artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: documentation-site
-          path: site/
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site/
-
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v3
