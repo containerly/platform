@@ -429,10 +429,10 @@ kubectl get deployment prometheus-operator -n operators
    ```bash
    # Reinstall OLM if needed
    ./script/olm
-   
+
    # Restore platform
    kubectl apply -f platform.k8s.yaml
-   
+
    # Restore custom resources
    kubectl apply -f prometheus-backup.yaml
    kubectl apply -f grafana-backup.yaml
@@ -442,7 +442,7 @@ kubectl get deployment prometheus-operator -n operators
    ```bash
    # Restore persistent volumes
    kubectl apply -f storage-state.yaml
-   
+
    # Restore operator data
    # Follow operator-specific restore procedures
    ```

@@ -654,10 +654,10 @@ When creating an issue, use this template:
 Brief description of the issue.
 
 ## Environment
-- Platform CDK8s Version: 
-- Node.js Version: 
-- Kubernetes Version: 
-- Operating System: 
+- Platform CDK8s Version:
+- Node.js Version:
+- Kubernetes Version:
+- Operating System:
 
 ## Steps to Reproduce
 1. Step 1

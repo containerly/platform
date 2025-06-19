@@ -54,10 +54,12 @@ jobs:
           echo "✅ Base manifests validated"
 
           # Validate development overlay
-          kustomize build overlays/development/ > /dev/null
+          kustomize build overlays/development/operators > /dev/null
+          kustomize build overlays/development/application > /dev/null
           echo "✅ Development overlay validated"
+
           # Validate production overlay
-          kustomize build overlays/production/ > /dev/null
+          kustomize build overlays/production/op > /dev/null
           echo "✅ Production overlay validated"
 
       - name: Generate Kubernetes Manifests
@@ -84,11 +86,15 @@ jobs:
           }
 
           # Generate manifests only if they contain content
-          generate_manifest "base/" "manifests/base.yaml" "Base manifests"
-          generate_manifest "overlays/development/" \
-            "manifests/development.yaml" "Development manifests"
+          generate_manifest "overlays/development/operators" \
+            "manifests/development.yaml" "development-operators.yaml"
           generate_manifest "overlays/production/" \
-            "manifests/production.yaml" "Production manifests"
+            "manifests/production.yaml" "production-operators.yaml"
+          generate_manifest "overlays/development/applications" \
+            "manifests/applications.yaml" "development-applications.yaml"
+          generate_manifest "overlays/applications/" \
+            "manifests/applications.yaml" "production-applications.yaml"
+
 
           # Show what manifests were created
           if ls manifests/*.yaml 1> /dev/null 2>&1; then
