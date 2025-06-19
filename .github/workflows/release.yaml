@@ -54,14 +54,17 @@ jobs:
           echo "✅ Development overlay validated"
 
           # Validate production overlay
-          kustomize build overlays/production/ > /dev/null
+          kustomize build overlays/production/applications/ > /dev/null
+          kustomize build overlays/production/operators/ > /dev/null
           echo "✅ Production overlay validated"
 
       - name: Generate Kubernetes Manifests
         run: |
           mkdir -p manifests
-          kustomize build overlays/development/ > manifests/development.yaml
-          kustomize build overlays/production/ > manifests/production.yaml
+          kustomize build overlays/development/applications/ > manifests/development-applications.yaml
+          kustomize build overlays/development/operators/ > manifests/development-operators.yaml
+          kustomize build overlays/production/applications/ > manifests/production-applications.yaml
+          kustomize build overlays/production/operators/ > manifests/production-operators.yaml
           kustomize build base/applications/ > manifests/base-applications.yaml
           kustomize build base/operators/ > manifests/base-operators.yaml
           echo "📦 Generated manifest files:"
@@ -125,11 +128,17 @@ jobs:
           if [ -f "manifests/base-operators.yaml" ]; then
             jq '.plugins[4][1].assets += [{"path": "manifests/base-operators.yaml", "name": "base-operators-${nextRelease.gitTag}.yaml", "label": "Base Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-          if [ -f "manifests/development.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/development.yaml", "name": "development-${nextRelease.gitTag}.yaml", "label": "Development Overlay Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/development-applications.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/development-applications.yaml", "name": "development-applications-${nextRelease.gitTag}.yaml", "label": "Development Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-          if [ -f "manifests/production.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/production.yaml", "name": "production-${nextRelease.gitTag}.yaml", "label": "Production Overlay Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/development-operators.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/development-operators.yaml", "name": "development-operators-${nextRelease.gitTag}.yaml", "label": "Development Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
+          if [ -f "manifests/production-applications.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/production-applications.yaml", "name": "production-applications-${nextRelease.gitTag}.yaml", "label": "Production Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
+          if [ -f "manifests/production-operators.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/production-operators.yaml", "name": "production-operators-${nextRelease.gitTag}.yaml", "label": "Production Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
 
           echo "Final release configuration:"
