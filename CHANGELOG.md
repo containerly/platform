@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/containerly/platform/compare/v1.4.1...v1.4.2) (2025-06-19)
+
+### Bug Fixes
+
+* **resources:** Add kubernetes resources ([e1093e2](https://github.com/containerly/platform/commit/e1093e281dad750ce18763730a76da902718d557))
+
 ## [1.4.1](https://github.com/containerly/platform/compare/v1.4.0...v1.4.1) (2025-06-19)
 
 ### Bug Fixes
