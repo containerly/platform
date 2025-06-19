@@ -9,3 +9,6 @@ resources:
   - grafana-datasource.yaml
   - grafana-folder.yaml
   - prometheus-rule.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
