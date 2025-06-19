@@ -1,8 +1,9 @@
+---
 apiVersion: fluxcd.controlplane.io/v1
 kind: FluxInstance
 metadata:
   name: flux
-  namespace: flux-system
+  namespace: operators
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 1h
     fluxcd.controlplane.io/reconcileTimeout: 5m
@@ -17,3 +18,9 @@ spec:
     - notification-controller
     - image-reflector-controller
     - image-automation-controller
+  cluster:
+    type: openshift
+    domain: cluster.local
+    networkPolicy: true
+    multitenant: true
+    tenantDefaultServiceAccount: flux

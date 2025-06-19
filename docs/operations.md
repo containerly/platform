@@ -1,25 +1,23 @@
 # Operations
 
-This document provides comprehensive operational procedures for administrating the Platform CDK8s deployment and managing the platform lifecycle.
+This document provides comprehensive operational procedures for administrating the Platform Kustomize deployment and managing the platform lifecycle.
 
 ## Overview
 
-The Platform CDK8s project requires several operational procedures for successful deployment, maintenance, and troubleshooting. This guide covers all administrative tasks required to operate the platform effectively.
+The Platform Kustomize project requires several operational procedures for successful deployment, maintenance, and troubleshooting. This guide covers all administrative tasks required to operate the platform effectively.
 
 ## Prerequisites
 
 ### Required Access
 
 - **Kubernetes Cluster Access**: kubectl configured with appropriate permissions
-- **GitHub Repository Access**: Read access to the containerly/platform repository
-- **NPM Registry Access**: Access to GitHub Packages (for consuming the NPM package)
+- **GitHub Repository Access**: Read access to the platform repository
 - **Administrative Privileges**: Cluster administrator or namespace administrator rights
 
 ### Required Tools
 
 - **kubectl**: Kubernetes command-line interface
-- **Node.js**: 18.x or 20.x for local development
-- **npm**: Package manager for consuming published packages
+- **kustomize**: For building overlays
 - **Git**: For repository operations
 
 ### Kubernetes Cluster Requirements
@@ -32,53 +30,7 @@ The Platform CDK8s project requires several operational procedures for successfu
 
 ## Installation Procedures
 
-### Method 1: Using Published NPM Package
-
-#### Step 1: Configure NPM Registry
-
-```bash
-# Configure npm to use GitHub Packages for @containerly scope
-npm config set @containerly:registry https://npm.pkg.github.com
-```
-
-#### Step 2: Install Package
-
-```bash
-# Install the platform package
-npm install @containerly/platform
-```
-
-#### Step 3: Generate Manifests
-
-```bash
-# Generate Kubernetes manifests
-npx cdk8s synth
-```
-
-#### Step 4: Deploy to Kubernetes
-
-```bash
-# Apply manifests to cluster
-kubectl apply -f dist/platform.k8s.yaml
-```
-
-### Method 2: Using Pre-built Manifests
-
-#### Step 1: Download Release Artifacts
-
-```bash
-# Download from GitHub Releases
-curl -L -o platform.k8s.yaml https://github.com/containerly/platform/releases/latest/download/platform.k8s.yaml
-```
-
-#### Step 2: Deploy to Kubernetes
-
-```bash
-# Apply manifests to cluster
-kubectl apply -f platform.k8s.yaml
-```
-
-### Method 3: Using Repository Scripts
+### Method 1: Using Kustomize Overlays
 
 #### Step 1: Clone Repository
 
@@ -87,16 +39,34 @@ git clone https://github.com/containerly/platform.git
 cd platform
 ```
 
-#### Step 2: Install Dependencies
+#### Step 2: Deploy to Kubernetes
 
 ```bash
-npm ci
+# Apply the development overlay
+kubectl apply -k overlays/development
+
+# Or apply the production overlay
+kubectl apply -k overlays/production
 ```
 
-#### Step 3: Deploy Platform
+### Method 2: Using Pre-built Manifests
+
+#### Step 1: Download Release Artifacts
 
 ```bash
-# Use the provided installation script
+# Download from GitHub Releases
+curl -L -o platform.yaml https://github.com/containerly/platform/releases/latest/download/platform.yaml
+```
+
+#### Step 2: Deploy to Kubernetes
+
+```bash
+kubectl apply -f platform.yaml
+```
+
+### Method 3: Using Repository Scripts
+
+```bash
 ./script/install
 ```
 
@@ -107,20 +77,14 @@ npm ci
 OLM is required for operator deployment. Install if not already present:
 
 ```bash
-# Install OLM using the provided script
 ./script/olm
 ```
 
 Manual OLM installation:
 
 ```bash
-# Install operator-sdk (macOS)
 brew install operator-sdk
-
-# Install OLM
 operator-sdk olm install
-
-# Verify OLM installation
 kubectl get pods -n olm
 kubectl get pods -n operators
 ```
@@ -135,7 +99,6 @@ The platform creates required namespaces automatically:
 Verify namespace creation:
 
 ```bash
-# Check namespace creation
 kubectl get namespaces | grep -E "(operators|flux-system)"
 ```
 

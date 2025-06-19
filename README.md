@@ -1,107 +1,80 @@
-# Platform CDK8s
+# Platform Kustomize
 
-A CDK8s TypeScript project that generates Kubernetes manifests for deploying a comprehensive platform with various operators including Flux, Grafana, Prometheus, Loki, Strimzi Kafka, MinIO, and Elastic Cloud ECK.
+A Kustomize-based repository for deploying a comprehensive platform with various operators including Flux, Grafana, Prometheus, Loki, Strimzi Kafka, MinIO, and Elastic Cloud ECK.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or 20.x
-- npm
+- kubectl (v1.25+ recommended)
+- kustomize (v4+)
 
-### NPM Package Installation
+### Repository Structure
 
-This project is published as an NPM package on GitHub Packages. You can install it using:
-
-```bash
-# Configure npm to use GitHub Packages for @containerly scope
-npm config set @containerly:registry https://npm.pkg.github.com
-
-# Install the package
-npm install @containerly/platform
+```
+platform/
+├── base/
+│   ├── applications/   # Application manifests (Kafka, Prometheus, Alertmanager, etc.)
+│   └── operators/      # Operator installation manifests (from OperatorHub or local)
+├── overlays/
+│   ├── development/    # Development environment overlays
+│   └── production/     # Production environment overlays
+├── docs/               # Documentation
+├── script/             # Utility scripts
+└── README.md
 ```
 
-For development, you can also clone and build locally:
+## Workflow
 
-### Local Development Installation
+### 1. Making Changes
+- Edit or add manifests in `base/applications` or `base/operators`.
+- Use overlays in `overlays/development` or `overlays/production` to customize resources for each environment.
+- To add a new application/operator, create the manifest in `base/` and reference it in the appropriate `kustomization.yaml`.
 
-```bash
-npm install
+### 2. Validating Changes
+
+```sh
+# Build and preview the development overlay
+kustomize build overlays/development | kubectl apply --dry-run=client -f -
+
+# Build and preview the production overlay
+kustomize build overlays/production | kubectl apply --dry-run=client -f -
 ```
 
-### Build Commands
+### 3. Applying to a Cluster
 
-```bash
-# Install dependencies
-npm ci
+```sh
+# Apply the development overlay
+kubectl apply -k overlays/development
 
-# Run tests
-npm test
-
-# Compile TypeScript
-npm run compile
-
-# Synthesize CDK8s manifests
-npm run synth
-
-# Full build (compile + test + synth)
-npm run build
+# Apply the production overlay
+kubectl apply -k overlays/production
 ```
 
-## Generated Output
+### 4. Adding/Upgrading Operators
+- Operator manifests are referenced in `base/operators/kustomization.yaml`.
+- For reproducibility, consider downloading operator manifests and versioning them in the repo, rather than referencing remote URLs directly.
 
-The project generates Kubernetes manifests in the `dist/platform.k8s.yaml` file, which includes:
-
-- Flux system namespace and operator
-- Grafana operator subscription
-- Prometheus operator subscription  
-- Loki operator subscription
-- Strimzi Kafka operator subscription
-- MinIO operator subscription
-- Elastic Cloud ECK operator subscription
+### 5. Environment Customization
+- Use overlays to patch resources (e.g., replica counts, resource limits, config values).
+- Add patches in the overlay’s `kustomization.yaml` as needed.
 
 ## CI/CD Workflows
 
-This project includes automated GitHub Actions workflows:
+This project can be integrated with CI/CD pipelines to validate overlays and apply manifests to clusters. Example steps:
 
-### CI Workflow (`.github/workflows/ci.yml`)
-- Triggers on push to `main` or `develop` branches
-- Tests on Node.js 18.x and 20.x
-- Runs tests, compilation, and CDK8s synthesis
-- Uploads generated manifests as artifacts
-
-### PR Validation (`.github/workflows/pr.yml`)
-- Triggers on pull requests to `main` branch
-- Validates code changes without creating releases
-- Uploads PR artifacts for review
-
-### Documentation Workflow (`.github/workflows/docs.yml`)
-- Triggers on push to `main` branch and PRs when documentation files change
-- Builds MkDocs documentation with Material theme
-- Deploys documentation to GitHub Pages
-- Validates documentation builds in pull requests
-
-### Release Workflow (`.github/workflows/release.yml`)
-- Triggers on push to `main` branch
-- Implements semantic versioning based on commit messages
-- Automatically creates GitHub releases with synthesized manifests
-- Publishes NPM package to GitHub Packages (@containerly/platform)
-
-#### Commit Message Conventions
-
-The release workflow uses commit message conventions for automatic version bumping:
-
-- `feat:` or `[minor]` → Minor version bump (1.0.0 → 1.1.0)
-- `fix:` or `[patch]` → Patch version bump (1.0.0 → 1.0.1)  
-- `feat!:` or `BREAKING CHANGE:` or `[major]` → Major version bump (1.0.0 → 2.0.0)
-- Other commits → Patch version bump (default)
+- Validate overlays with `kustomize build` and `kubectl apply --dry-run`.
+- Lint YAML files.
+- Optionally, use tools like `kubeval` or `conftest` for policy checks.
 
 ## Deployment
 
-Use the generated manifest to deploy to your Kubernetes cluster:
+Use Kustomize overlays to deploy to your Kubernetes cluster:
 
 ```bash
-kubectl apply -f dist/platform.k8s.yaml
+kubectl apply -k overlays/development
+# or
+kubectl apply -k overlays/production
 ```
 
 Or use the provided installation script:
@@ -117,29 +90,11 @@ For comprehensive developer documentation, including detailed setup instructions
 ### Documentation Sections
 
 - **[Getting Started](docs/getting-started.md)** - Set up your development environment
-- **[Architecture](docs/architecture.md)** - Understand the system design and components  
+- **[Architecture](docs/architecture.md)** - Understand the system design and components
 - **[Development](docs/development.md)** - Development workflows and best practices
 - **[Contributing](docs/contributing.md)** - How to contribute to the project
 - **[Operations](docs/operations.md)** - Administrative procedures and operational tasks
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 - **[API Reference](docs/api-reference.md)** - Technical reference documentation
-- **[Version Management](docs/version-management.md)** - Automated and manual version bumping guide
-
-### Building Documentation
-
-To build and serve the documentation locally:
-
-```bash
-# Install MkDocs and dependencies
-pip install mkdocs mkdocs-material pymdown-extensions
-
-# Serve documentation locally
-mkdocs serve
-
-# Build static documentation
-mkdocs build
-```
-
-## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to get started, development workflows, and our code of conduct.

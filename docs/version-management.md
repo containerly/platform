@@ -30,27 +30,6 @@ The scheduled workflow can also be triggered manually via the GitHub Actions UI.
 
 ## Manual Version Management
 
-### Using NPM Scripts
-
-The project includes convenient NPM scripts for manual version management:
-
-```bash
-# Check current version
-npm run version:check
-
-# Bump patch version (1.0.0 → 1.0.1)
-npm run version:patch
-
-# Bump minor version (1.0.0 → 1.1.0)
-npm run version:minor
-
-# Bump major version (1.0.0 → 2.0.0)
-npm run version:major
-
-# Dry run to see what would change
-npm run version:dry-run
-```
-
 ### Using the Version Bump Script
 
 You can also use the version bump script directly:

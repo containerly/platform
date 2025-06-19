@@ -1,0 +1,26 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: my-pool
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  replicas: 1
+  roles:
+    - controller
+  storage:                # dev-friendly; swap for Persistent in prod
+    type: ephemeral
+---
+# brokers.yaml  ── at least one broker pool
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: brokers
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  replicas: 1
+  roles:
+    - broker
+  storage:
+    type: ephemeral

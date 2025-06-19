@@ -1,6 +1,6 @@
 # Troubleshooting
 
-This guide provides solutions for common issues encountered when working with the Platform CDK8s project, including development, deployment, and operational problems.
+This guide provides solutions for common issues encountered when working with the Platform Kustomize project, including deployment and operational problems.
 
 ## General Troubleshooting Approach
 
@@ -38,177 +38,16 @@ Always collect this information when troubleshooting:
 ```bash
 # Platform information
 kubectl version
-node --version
-npm --version
-
-# Cluster state
 kubectl get nodes
 kubectl get namespaces
 kubectl get pods -A | grep -E "(operator|olm)"
-
 # Platform-specific status
 kubectl get subscriptions -A
 kubectl get csv -A
 kubectl get installplans -A
 ```
 
-## Development Issues
-
-### Node.js and NPM Issues
-
-#### Issue: Node.js Version Mismatch
-
-**Symptoms:**
-- Build failures with version-related errors
-- NPM package installation errors
-- TypeScript compilation issues
-
-**Solution:**
-```bash
-# Check current Node.js version
-node --version
-
-# Install correct version using nvm
-nvm install 20
-nvm use 20
-
-# Verify version
-node --version
-```
-
-#### Issue: NPM Package Installation Failures
-
-**Symptoms:**
-- `npm ci` or `npm install` fails
-- Package dependency conflicts
-- Permission errors
-
-**Solutions:**
-```bash
-# Clear npm cache
-npm cache clean --force
-
-# Remove node_modules and package-lock.json
-rm -rf node_modules package-lock.json
-
-# Reinstall dependencies
-npm install
-
-# For permission issues (avoid using sudo)
-npm config set prefix ~/.npm-global
-export PATH=~/.npm-global/bin:$PATH
-```
-
-#### Issue: TypeScript Compilation Errors
-
-**Symptoms:**
-- `npm run compile` fails
-- Type definition errors
-- Import/export errors
-
-**Solutions:**
-```bash
-# Check TypeScript configuration
-cat tsconfig.json
-
-# Verify CDK8s imports are generated
-ls -la imports/
-
-# Re-generate imports if needed
-npm run import
-
-# Clean and rebuild
-rm -rf dist/
-npm run compile
-```
-
-### CDK8s Issues
-
-#### Issue: CDK8s Synthesis Failures
-
-**Symptoms:**
-- `npm run synth` fails
-- Generated manifests are incomplete
-- HTTP errors during synthesis
-
-**Solutions:**
-```bash
-# Check CDK8s configuration
-cat cdk8s.yaml
-
-# Verify CDK8s version compatibility
-npm list cdk8s
-
-# Update CDK8s if needed
-npm run upgrade
-
-# Check for network issues
-curl -I https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/main/deploy/upstream/quickstart/crds.yaml
-```
-
-#### Issue: Import Generation Failures
-
-**Symptoms:**
-- `npm run import` fails
-- Missing type definitions
-- Import path errors
-
-**Solutions:**
-```bash
-# Check import configuration
-cat cdk8s.yaml
-
-# Manually run import with verbose output
-npx cdk8s import -v
-
-# Clear and regenerate imports
-rm -rf imports/
-npm run import
-```
-
-### Testing Issues
-
-#### Issue: Test Failures
-
-**Symptoms:**
-- `npm test` fails
-- Snapshot mismatches
-- Test timeouts
-
-**Solutions:**
-```bash
-# Run tests with verbose output
-npm test -- --verbose
-
-# Update snapshots if changes are intentional
-npm test -- --updateSnapshot
-
-# Run specific test file
-npm test -- main.test.ts
-
-# Check Jest configuration
-cat jest.config.js
-```
-
-#### Issue: Snapshot Test Mismatches
-
-**Symptoms:**
-- Tests fail due to snapshot differences
-- Generated manifests have unexpected changes
-
-**Solutions:**
-```bash
-# Review snapshot differences
-npm test
-
-# Update snapshots if changes are expected
-npm test -- --updateSnapshot
-
-# Compare with previous version
-git diff __snapshots__/
-```
-
-## Deployment Issues
+## Common Issues
 
 ### Kubernetes Cluster Issues
 
@@ -221,19 +60,10 @@ git diff __snapshots__/
 
 **Solutions:**
 ```bash
-# Check kubectl configuration
 kubectl config view
-
-# Test cluster connectivity
 kubectl cluster-info
-
-# Check current context
 kubectl config current-context
-
-# Switch context if needed
 kubectl config use-context CONTEXT_NAME
-
-# Verify permissions
 kubectl auth can-i "*" "*" --all-namespaces
 ```
 
@@ -246,17 +76,10 @@ kubectl auth can-i "*" "*" --all-namespaces
 
 **Solutions:**
 ```bash
-# Check node resources
 kubectl top nodes
 kubectl describe nodes
-
-# Check resource quotas
 kubectl get resourcequotas -A
-
-# Check pod resource requests
 kubectl get pods -n operators -o json | jq '.items[] | {name: .metadata.name, resources: .spec.containers[].resources}'
-
-# Scale cluster if needed (cloud provider specific)
 ```
 
 ### OLM (Operator Lifecycle Manager) Issues
