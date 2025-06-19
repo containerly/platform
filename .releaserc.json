@@ -21,19 +21,59 @@
       {
         "assets": [
           {
-            "path": "manifests/base.yaml",
-            "name": "kubernetes-base-${nextRelease.gitTag}.yaml",
-            "label": "Kubernetes Base Manifests"
+            "path": "manifests/base-applications.yaml",
+            "name": "base-applications.yaml",
+            "label": "base-applications.yaml"
           },
           {
-            "path": "manifests/development.yaml", 
-            "name": "kubernetes-development-${nextRelease.gitTag}.yaml",
-            "label": "Kubernetes Development Manifests"
+            "path": "manifests/base-operators.yaml",
+            "name": "base-operators.yaml",
+            "label": "base-operators.yaml"
           },
           {
-            "path": "manifests/production.yaml",
-            "name": "kubernetes-production-${nextRelease.gitTag}.yaml", 
-            "label": "Kubernetes Production Manifests"
+            "path": "manifests/base-resources.yaml",
+            "name": "base-resources.yaml",
+            "label": "base-resources.yaml"
+          },
+          {
+            "path": "manifests/development-operators.yaml",
+            "name": "development-operators.yaml",
+            "label": "development-operators.yaml"
+          },
+          {
+            "path": "manifests/development-applications.yaml",
+            "name": "development-applications.yaml",
+            "label": "development-applications.yaml"
+          },
+          {
+            "path": "manifests/development-resources.yaml",
+            "name": "development-resources.yaml",
+            "label": "development-resources.yaml"
+          },
+          {
+            "path": "manifests/production-operators.yaml",
+            "name": "production-operators.yaml",
+            "label": "production-operators.yaml"
+          },
+          {
+            "path": "manifests/production-applications.yaml",
+            "name": "production-applications.yaml",
+            "label": "production-applications.yaml"
+          },
+          {
+            "path": "manifests/production-operators.yaml",
+            "name": "production-operators.yaml",
+            "label": "production-operators.yaml"
+          },
+          {
+            "path": "manifests/production-applications.yaml",
+            "name": "production-applications.yaml",
+            "label": "production-applications.yaml"
+          },
+          {
+            "path": "manifests/production-resources.yaml",
+            "name": "production-resources.yaml",
+            "label": "production-resources.yaml"
           }
         ]
       }
