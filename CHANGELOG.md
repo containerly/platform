@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/containerly/platform/compare/v1.4.0...v1.4.1) (2025-06-19)
+
+### Bug Fixes
+
+* **releaserc:** update path ([a73e7c7](https://github.com/containerly/platform/commit/a73e7c7c03c3808e14ddcfc9386bcb10b8671886))
+
 ## [1.4.0](https://github.com/containerly/platform/compare/v1.3.2...v1.4.0) (2025-06-19)
 
 ### Features
