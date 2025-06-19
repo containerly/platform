@@ -123,22 +123,22 @@ jobs:
 
           # Add manifest assets if they exist
           if [ -f "manifests/base-applications.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/base-applications.yaml", "name": "base-applications-${nextRelease.gitTag}.yaml", "label": "Base Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/base-applications.yaml", "name": "base-applications.yaml", "label": "Base Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
           if [ -f "manifests/base-operators.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/base-operators.yaml", "name": "base-operators-${nextRelease.gitTag}.yaml", "label": "Base Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/base-operators.yaml", "name": "base-operators.yaml", "label": "Base Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
           if [ -f "manifests/development-applications.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/development-applications.yaml", "name": "development-applications-${nextRelease.gitTag}.yaml", "label": "Development Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/development-applications.yaml", "name": "development-applications.yaml", "label": "Development Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
           if [ -f "manifests/development-operators.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/development-operators.yaml", "name": "development-operators-${nextRelease.gitTag}.yaml", "label": "Development Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/development-operators.yaml", "name": "development-operators.yaml", "label": "Development Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
           if [ -f "manifests/production-applications.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/production-applications.yaml", "name": "production-applications-${nextRelease.gitTag}.yaml", "label": "Production Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/production-applications.yaml", "name": "production-applications.yaml", "label": "Production Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
           if [ -f "manifests/production-operators.yaml" ]; then
-            jq '.plugins[4][1].assets += [{"path": "manifests/production-operators.yaml", "name": "production-operators-${nextRelease.gitTag}.yaml", "label": "Production Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/production-operators.yaml", "name": "production-operators.yaml", "label": "Production Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
 
           echo "Final release configuration:"
