@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/containerly/platform/compare/v1.3.2...v1.4.0) (2025-06-19)
+
+### Features
+
+* **resources:** Add resources ([17ca00c](https://github.com/containerly/platform/commit/17ca00cd8d6f35475827e432b6d9da8d7828f184))
+
 ## [1.3.2](https://github.com/containerly/platform/compare/v1.3.1...v1.3.2) (2025-06-19)
 
 ### Bug Fixes
