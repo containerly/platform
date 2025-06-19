@@ -63,10 +63,16 @@ jobs:
           mkdir -p manifests
           kustomize build overlays/development/applications/ > manifests/development-applications.yaml
           kustomize build overlays/development/operators/ > manifests/development-operators.yaml
+          kustomize build overlays/development/resources/ > manifests/development-resources.yaml
+
           kustomize build overlays/production/applications/ > manifests/production-applications.yaml
           kustomize build overlays/production/operators/ > manifests/production-operators.yaml
+          kustomize build overlays/production/resources/ > manifests/production-resources.yaml
+
           kustomize build base/applications/ > manifests/base-applications.yaml
           kustomize build base/operators/ > manifests/base-operators.yaml
+          kustomize build base/resources/ > manifests/base-resources.yaml
+
           echo "📦 Generated manifest files:"
           ls -la manifests/
 
@@ -140,16 +146,14 @@ jobs:
           if [ -f "manifests/production-operators.yaml" ]; then
             jq '.plugins[4][1].assets += [{"path": "manifests/production-operators.yaml", "name": "production-operators.yaml", "label": "production-operators.yaml"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-
-          # Add resources zips if they exist
-          if [ -f "release-resources/base-resources.zip" ]; then
-            jq '.plugins[4][1].assets += [{"path": "release-resources/base-resources.zip", "name": "base-resources.zip", "label": "Base Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/development-resources.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/development-resources.yaml", "name": "development-resources.yaml", "label": "development-resources.yaml"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-          if [ -f "release-resources/development-resources.zip" ]; then
-            jq '.plugins[4][1].assets += [{"path": "release-resources/development-resources.zip", "name": "development-resources.zip", "label": "Development Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/production-resources.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/production-resources.yaml", "name": "production-resources.yaml", "label": "production-resources.yaml"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-          if [ -f "release-resources/production-resources.zip" ]; then
-            jq '.plugins[4][1].assets += [{"path": "release-resources/production-resources.zip", "name": "production-resources.zip", "label": "Production Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/base-resources.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/base-resources.yaml", "name": "base-resources.yaml", "label": "base-resources.yaml"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
 
           echo "Final release configuration:"
