@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openapi-server-spring-config
+data:
+  application.yaml: |
+    server:
+      port: 8080
+    spring:
+      jackson:
+        date-format: org.openapitools.RFC3339DateFormat
+        serialization:
+          write-dates-as-timestamps: false
+    springdoc:
+      swagger-ui:
+        path: /swagger-ui.html
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info
+      endpoint:
+        health:
+          show-details: when-authorized
+    logging:
+      level:
+        org.springframework.web: INFO
+        root: INFO

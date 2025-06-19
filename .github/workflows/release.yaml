@@ -141,6 +141,17 @@ jobs:
             jq '.plugins[4][1].assets += [{"path": "manifests/production-operators.yaml", "name": "production-operators.yaml", "label": "production-operators.yaml"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
 
+          # Add resources zips if they exist
+          if [ -f "release-resources/base-resources.zip" ]; then
+            jq '.plugins[4][1].assets += [{"path": "release-resources/base-resources.zip", "name": "base-resources.zip", "label": "Base Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
+          if [ -f "release-resources/development-resources.zip" ]; then
+            jq '.plugins[4][1].assets += [{"path": "release-resources/development-resources.zip", "name": "development-resources.zip", "label": "Development Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
+          if [ -f "release-resources/production-resources.zip" ]; then
+            jq '.plugins[4][1].assets += [{"path": "release-resources/production-resources.zip", "name": "production-resources.zip", "label": "Production Resources"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
+
           echo "Final release configuration:"
           cat .releaserc.json
 
