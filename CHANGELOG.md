@@ -1,3 +1,9 @@
+## [1.3.2](https://github.com/containerly/platform/compare/v1.3.1...v1.3.2) (2025-06-19)
+
+### Bug Fixes
+
+* **issue:** Fix naming conventions ([050de47](https://github.com/containerly/platform/commit/050de472212c9fc646372ec709622fc2a48ae0da))
+
 ## [1.3.1](https://github.com/containerly/platform/compare/v1.3.0...v1.3.1) (2025-06-19)
 
 ### Bug Fixes
