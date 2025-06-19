@@ -31,10 +31,41 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Install Kustomize
+        run: |
+          KUSTOMIZE_URL="https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
+          curl -s "$KUSTOMIZE_URL" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Validate Kustomize manifests
+        run: |
+          # Validate base manifests (applications and operators separately)
+          kustomize build base/applications/ > /dev/null
+          kustomize build base/operators/ > /dev/null
+          echo "✅ Base manifests validated"
+
+          # Validate development overlay
+          kustomize build overlays/development/applications/ > /dev/null
+          kustomize build overlays/development/operators/ > /dev/null
+          echo "✅ Development overlay validated"
+
+          # Validate production overlay
+          kustomize build overlays/production/ > /dev/null
+          echo "✅ Production overlay validated"
+
+      - name: Generate Kubernetes Manifests
+        run: |
+          mkdir -p manifests
+          kustomize build overlays/development/ > manifests/development.yaml
+          kustomize build overlays/production/ > manifests/production.yaml
+          kustomize build base/applications/ > manifests/base-applications.yaml
+          kustomize build base/operators/ > manifests/base-operators.yaml
+          echo "📦 Generated manifest files:"
+          ls -la manifests/
 
       - name: Install semantic-release
         run: |
@@ -42,72 +73,8 @@ jobs:
             @semantic-release/git @semantic-release/github \
             conventional-changelog-conventionalcommits
 
-      - name: Validate Kustomize manifests
-        run: |
-          # Install kustomize
-          KUSTOMIZE_URL="https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
-          curl -s "$KUSTOMIZE_URL" | bash
-          sudo mv kustomize /usr/local/bin/
-
-          # Validate base manifests
-          kustomize build base/ > /dev/null
-          echo "✅ Base manifests validated"
-
-          # Validate development overlay
-          kustomize build overlays/development/operators > /dev/null
-          kustomize build overlays/development/application > /dev/null
-          echo "✅ Development overlay validated"
-
-          # Validate production overlay
-          kustomize build overlays/production/op > /dev/null
-          echo "✅ Production overlay validated"
-
-      - name: Generate Kubernetes Manifests
-        run: |
-          # Create manifests directory
-          mkdir -p manifests
-
-          # Function to generate manifest if not empty
-          generate_manifest() {
-            local overlay_path="$1"
-            local manifest_file="$2"
-            local description="$3"
-
-            local temp_output
-            temp_output=$(kustomize build "$overlay_path")
-
-            if [ -n "$temp_output" ] && [ "$temp_output" != "" ]; then
-              echo "$temp_output" > "$manifest_file"
-              file_lines=$(wc -l < "$manifest_file")
-              echo "✅ $description generated ($file_lines lines)"
-            else
-              echo "ℹ️  $description skipped (no resources found)"
-            fi
-          }
-
-          # Generate manifests only if they contain content
-          generate_manifest "overlays/development/operators" \
-            "manifests/development.yaml" "development-operators.yaml"
-          generate_manifest "overlays/production/" \
-            "manifests/production.yaml" "production-operators.yaml"
-          generate_manifest "overlays/development/applications" \
-            "manifests/applications.yaml" "development-applications.yaml"
-          generate_manifest "overlays/applications/" \
-            "manifests/applications.yaml" "production-applications.yaml"
-
-
-          # Show what manifests were created
-          if ls manifests/*.yaml 1> /dev/null 2>&1; then
-            echo "📦 Generated manifest files:"
-            ls -la manifests/
-          else
-            echo "ℹ️  No manifest files generated (no resources found)"
-          fi
-
       - name: Prepare Release Configuration
-        # yamllint disable-line rule:line-length
         run: |
-          # Create dynamic release configuration based on available manifests
           cat > .releaserc.json << 'EOF'
           {
             "branches": ["main", "master"],
@@ -123,7 +90,7 @@ jobs:
               [
                 "@semantic-release/git",
                 {
-                  "assets": ["CHANGELOG.md", "package.json"],
+                  "assets": ["CHANGELOG.md"],
                   "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
                 }
               ],
@@ -152,33 +119,18 @@ jobs:
           EOF
 
           # Add manifest assets if they exist
-          # yamllint disable rule:line-length
-          if [ -f "manifests/base.yaml" ]; then
-            echo "Adding base manifest to release assets"
-            jq '.plugins[4][1].assets += [{
-              "path": "manifests/base.yaml",
-              "name": "kubernetes-base-\u0024{nextRelease.gitTag}.yaml",
-              "label": "Kubernetes Base Manifests"
-            }]' .releaserc.json > .releaserc.tmp
-            mv .releaserc.tmp .releaserc.json
+          if [ -f "manifests/base-applications.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/base-applications.yaml", "name": "base-applications-${nextRelease.gitTag}.yaml", "label": "Base Applications Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-
+          if [ -f "manifests/base-operators.yaml" ]; then
+            jq '.plugins[4][1].assets += [{"path": "manifests/base-operators.yaml", "name": "base-operators-${nextRelease.gitTag}.yaml", "label": "Base Operators Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
+          fi
           if [ -f "manifests/development.yaml" ]; then
-            echo "Adding development manifest to release assets"
-            jq '.plugins[4][1].assets += [{"path": "manifests/development.yaml", "name": "kubernetes-development-${nextRelease.gitTag}.yaml", "label": "Kubernetes Development Manifests"}]' .releaserc.json > .releaserc.tmp
-            mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/development.yaml", "name": "development-${nextRelease.gitTag}.yaml", "label": "Development Overlay Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-
           if [ -f "manifests/production.yaml" ]; then
-            echo "Adding production manifest to release assets"
-            jq '.plugins[4][1].assets += [{
-              "path": "manifests/production.yaml",
-              "name": "kubernetes-production-\u0024{nextRelease.gitTag}.yaml",
-              "label": "Kubernetes Production Manifests"
-            }]' .releaserc.json > .releaserc.tmp
-            mv .releaserc.tmp .releaserc.json
+            jq '.plugins[4][1].assets += [{"path": "manifests/production.yaml", "name": "production-${nextRelease.gitTag}.yaml", "label": "Production Overlay Manifests"}]' .releaserc.json > .releaserc.tmp && mv .releaserc.tmp .releaserc.json
           fi
-          # yamllint enable rule:line-length
 
           echo "Final release configuration:"
           cat .releaserc.json
@@ -187,10 +139,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Configure git
           git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # Run semantic release
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           npx semantic-release
