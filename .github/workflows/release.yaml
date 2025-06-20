@@ -62,16 +62,25 @@ jobs:
         run: |
           mkdir -p manifests
           kustomize build overlays/development/applications/ > manifests/development-applications.yaml
+          cat manifests/development-applications.yaml
           kustomize build overlays/development/operators/ > manifests/development-operators.yaml
+          cat manifests/development-operators.yaml
           kustomize build overlays/development/resources/ > manifests/development-resources.yaml
+          cat manifests/development-resources.yaml
 
           kustomize build overlays/production/applications/ > manifests/production-applications.yaml
+          cat manifests/production-applications.yaml
           kustomize build overlays/production/operators/ > manifests/production-operators.yaml
+          cat manifests/production-operators.yaml
           kustomize build overlays/production/resources/ > manifests/production-resources.yaml
+          cat manifests/production-resources.yaml
 
           kustomize build base/applications/ > manifests/base-applications.yaml
+          cat manifests/base-applications.yaml
           kustomize build base/operators/ > manifests/base-operators.yaml
+          cat manifests/base-operators.yaml
           kustomize build base/resources/ > manifests/base-resources.yaml
+          cat manifests/base-resources.yaml
 
           echo "📦 Generated manifest files:"
           ls -la manifests/
