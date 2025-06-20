@@ -1,7 +1,9 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: prometheus-example-rules
+  name: openapi-server-spring
+  labels:
+    app: openapi-server-spring
 spec:
   groups:
     - name: ./example.rules
