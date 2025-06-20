@@ -2,6 +2,8 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: openapi-server-spring
+  labels:
+    app: openapi-server-spring
 spec:
   interval: 5m
   path: ./manifests/overlays/development
