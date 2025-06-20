@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/containerly/platform/compare/v1.4.2...v1.4.3) (2025-06-20)
+
+### Bug Fixes
+
+* **resources:** Print manifest ([c5c5e77](https://github.com/containerly/platform/commit/c5c5e77569684d5ec66080102c04ab680af949d0))
+* **resources:** Print manifest ([e6d0103](https://github.com/containerly/platform/commit/e6d010339ed3af5efd5d3413597a42c79955f9c3))
+
 ## [1.4.2](https://github.com/containerly/platform/compare/v1.4.1...v1.4.2) (2025-06-19)
 
 ### Bug Fixes
