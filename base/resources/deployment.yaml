@@ -15,7 +15,7 @@ spec:
         app: openapi-server-spring
     spec:
       imagePullSecrets:
-        - name: registry-auth
+        - name: registry-secret
       containers:
       - name: openapi-server-spring
         image: ghcr.io/containerly/openapi-server-spring:latest
