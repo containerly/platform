@@ -1,9 +1,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: podinfo
+  name: openapi-server-spring
+  labels:
+    app: openapi-server-spring
 spec:
   interval: 1m
   ref:
-    branch: master
-  url: 'https://github.com/stefanprodan/podinfo'
+    branch: main
+  url: 'https://github.com/containerly/openapi-server-spring'
