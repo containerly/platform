@@ -1,7 +1,9 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
-  name: grafanadatasource-sample
+  name: openapi-server-spring
+  labels:
+    app: openapi-server-spring
 spec:
   datasource:
     access: proxy
@@ -14,7 +16,7 @@ spec:
     url: 'http://prometheus-service:9090'
   instanceSelector:
     matchLabels:
-      dashboards: grafana-a
+      dashboards: openapi-server-spring
   plugins:
     - name: grafana-clock-panel
       version: 1.3.0
