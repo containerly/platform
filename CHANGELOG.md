@@ -1,3 +1,9 @@
+## [1.4.11](https://github.com/containerly/platform/compare/v1.4.10...v1.4.11) (2025-06-23)
+
+### Bug Fixes
+
+* **prometheus:** Update prometheus.monitoring.coreos.com.yaml ([10b37c2](https://github.com/containerly/platform/commit/10b37c2d1179188b665d7b5c0186cfab90b94e03))
+
 ## [1.4.10](https://github.com/containerly/platform/compare/v1.4.9...v1.4.10) (2025-06-23)
 
 ### Bug Fixes
