@@ -1,3 +1,11 @@
+## [1.4.8](https://github.com/containerly/platform/compare/v1.4.7...v1.4.8) (2025-06-23)
+
+### Bug Fixes
+
+* **grafana-dashboard:** Create grafana-dashboard.yaml ([f4fa0eb](https://github.com/containerly/platform/commit/f4fa0ebe902ed02ad93a1db8848b68ddbc3c018b))
+* **grafana:** Fix grafana ([423d055](https://github.com/containerly/platform/commit/423d055669170a5da9f9d33eb5ad1988463cc296))
+* **grafana:** Fix Grafana ([82143dd](https://github.com/containerly/platform/commit/82143dd934fc3ec941776cf926d3343ac383fa47))
+
 ## [1.4.7](https://github.com/containerly/platform/compare/v1.4.6...v1.4.7) (2025-06-23)
 
 ### Bug Fixes
