@@ -13,7 +13,9 @@ spec:
   serviceMonitorNamespaceSelector:
     matchNames:
       - "default"
-  ruleSelector: {}
+  ruleSelector:
+    matchLabels:
+      release: example
   podMonitorSelector: {}
   probeSelector: {}
   alerting:
