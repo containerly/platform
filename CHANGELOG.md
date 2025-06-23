@@ -1,3 +1,9 @@
+## [1.4.6](https://github.com/containerly/platform/compare/v1.4.5...v1.4.6) (2025-06-23)
+
+### Bug Fixes
+
+* **grafana-dashboard:** Update kustomization.yaml ([7bd41dc](https://github.com/containerly/platform/commit/7bd41dc17f3648c899a33761699c013a0ad9e918))
+
 ## [1.4.5](https://github.com/containerly/platform/compare/v1.4.4...v1.4.5) (2025-06-23)
 
 ### Bug Fixes
