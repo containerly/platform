@@ -10,4 +10,3 @@ resources:
   - prometheus-rule.yaml
   - configmap.yaml
   - deployment.yaml
-  - service.yaml
