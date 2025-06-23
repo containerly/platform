@@ -1,3 +1,9 @@
+## [1.4.7](https://github.com/containerly/platform/compare/v1.4.6...v1.4.7) (2025-06-23)
+
+### Bug Fixes
+
+* **service:** Update kustomization.yaml ([77adef6](https://github.com/containerly/platform/commit/77adef673b4244b7075ef90a10553224491e5d64))
+
 ## [1.4.6](https://github.com/containerly/platform/compare/v1.4.5...v1.4.6) (2025-06-23)
 
 ### Bug Fixes
