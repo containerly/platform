@@ -65,6 +65,6 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: openapi-server-spring-config
+          name: dev-openapi-server-spring
       securityContext:
         fsGroup: 1000
