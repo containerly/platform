@@ -1,3 +1,9 @@
+## [1.4.5](https://github.com/containerly/platform/compare/v1.4.4...v1.4.5) (2025-06-23)
+
+### Bug Fixes
+
+* **bump:** Update deployment.yaml ([5f5281d](https://github.com/containerly/platform/commit/5f5281d10b7c0d4abede6915b7a6bde551e457eb))
+
 ## [1.4.4](https://github.com/containerly/platform/compare/v1.4.3...v1.4.4) (2025-06-20)
 
 ### Bug Fixes
