@@ -7,7 +7,12 @@ metadata:
 spec:
   replicas: 1
   serviceAccountName: prometheus-k8s
-  serviceMonitorSelector: {}
+  serviceMonitorSelector:
+    matchLabels:
+      release: example
+  serviceMonitorNamespaceSelector:
+    matchNames:
+      - "default"
   ruleSelector: {}
   podMonitorSelector: {}
   probeSelector: {}
