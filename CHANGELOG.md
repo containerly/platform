@@ -1,3 +1,9 @@
+## [1.4.10](https://github.com/containerly/platform/compare/v1.4.9...v1.4.10) (2025-06-23)
+
+### Bug Fixes
+
+* **prometheus:** Add baseline prometheus use ([b2d7909](https://github.com/containerly/platform/commit/b2d7909ec3b39e09a1ca3bd864f10411fdd064bd))
+
 ## [1.4.9](https://github.com/containerly/platform/compare/v1.4.8...v1.4.9) (2025-06-23)
 
 ### Bug Fixes
