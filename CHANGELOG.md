@@ -1,3 +1,9 @@
+## [1.4.9](https://github.com/containerly/platform/compare/v1.4.8...v1.4.9) (2025-06-23)
+
+### Bug Fixes
+
+* **configmap:** Update deployment.yaml ([b578d13](https://github.com/containerly/platform/commit/b578d13035eecd1d600ba3327e645cac8acb4342))
+
 ## [1.4.8](https://github.com/containerly/platform/compare/v1.4.7...v1.4.8) (2025-06-23)
 
 ### Bug Fixes
