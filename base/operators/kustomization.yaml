@@ -4,6 +4,5 @@ kind: Kustomization
 resources:
   - https://operatorhub.io/install/flux-operator.yaml
   - https://operatorhub.io/install/grafana-operator.yaml
-  # - https://operatorhub.io/install/prometheus.yaml
   - https://operatorhub.io/install/strimzi-kafka-operator.yaml
   - https://operatorhub.io/install/victoriametrics-operator.yaml

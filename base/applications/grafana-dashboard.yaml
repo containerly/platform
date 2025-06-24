@@ -1,0 +1,16 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: vm-dashboard
+  labels:
+    dashboards: grafana-vm
+spec:
+  resyncPeriod: 30s
+  plugins:
+    - name: victoriametrics-metrics-datasource
+      version: "0.14.0"
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana-vm"
+  url: "https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/refs/heads/master/dashboards/vm/victoriametrics.json"

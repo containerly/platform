@@ -1,0 +1,18 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: vm-datasource
+  labels:
+    dashboards: grafana-vm
+spec:
+  datasource:
+    access: proxy
+    type: victoriametrics-metrics-datasource
+    name: VM
+    url: http://vmsingle-openapi-server-spring.default.svc.cluster.local:8428
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana-vm
+  plugins:
+    - name: victoriametrics-metrics-datasource
+      version: "0.14.0"

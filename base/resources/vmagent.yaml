@@ -1,0 +1,10 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: openapi-server-spring
+spec:
+  replicaCount: 1
+  scrapeInterval: 30s
+  selectAllByDefault: true
+  remoteWrite:
+    - url: "http://vmsingle-openapi-server-spring.default.svc:8429/api/v1/write"

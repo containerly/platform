@@ -3,28 +3,40 @@ kind: ConfigMap
 metadata:
   name: openapi-server-spring
   labels:
-    app: openapi-server-spring
+    app.kubernetes.io/name: openapi-server-spring
 data:
   application.yaml: |
     server:
       port: 8080
+
     spring:
       jackson:
         date-format: org.openapitools.RFC3339DateFormat
         serialization:
           write-dates-as-timestamps: false
+
     springdoc:
       swagger-ui:
         path: /swagger-ui.html
+
     management:
       endpoints:
         web:
           exposure:
-            include: health,info
+            include: prometheus,metrics,info,health
       endpoint:
+        metrics:
+          enabled: true
         health:
-          show-details: when-authorized
-    logging:
-      level:
-        org.springframework.web: INFO
-        root: INFO
+          show-details: always
+          show-components: always
+          probes:
+            enabled: true
+        prometheus:
+          enabled: true
+      server:
+        port: 8080
+      prometheus:
+        metrics:
+          export:
+            enabled: true

@@ -1,12 +1,10 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMServiceScrape
 metadata:
-  name: my-service-scrape
-  namespace: operators
+  name: openapi-server-spring
 spec:
   selector:
     matchLabels:
-      app: my-app
+      app.kubernetes.io/name: openapi-server-spring
   endpoints:
-    - port: http
-      interval: 30s
+  - port: http

@@ -4,7 +4,7 @@ kind: Kustomization
 metadata:
   name: openapi-server-spring
   labels:
-    app: openapi-server-spring
+    app.kubernetes.io/name: openapi-server-spring
 spec:
   interval: 5m
   path: ./manifests/overlays/development
