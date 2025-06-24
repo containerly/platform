@@ -1,3 +1,9 @@
+## [1.4.13](https://github.com/containerly/platform/compare/v1.4.12...v1.4.13) (2025-06-24)
+
+### Bug Fixes
+
+* **base:** Working model with victoria metrics ([412f504](https://github.com/containerly/platform/commit/412f5047fee1a3b7aee3600f5e0e81f2a2c9d7e3))
+
 ## [1.4.12](https://github.com/containerly/platform/compare/v1.4.11...v1.4.12) (2025-06-24)
 
 ### Bug Fixes
