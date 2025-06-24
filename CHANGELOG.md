@@ -1,3 +1,9 @@
+## [1.4.12](https://github.com/containerly/platform/compare/v1.4.11...v1.4.12) (2025-06-24)
+
+### Bug Fixes
+
+* **base:** Update base platform with vm ([4ca9cf4](https://github.com/containerly/platform/commit/4ca9cf41343007fd3fbd9bcd6b1afd2c4f39ee69))
+
 ## [1.4.11](https://github.com/containerly/platform/compare/v1.4.10...v1.4.11) (2025-06-23)
 
 ### Bug Fixes
