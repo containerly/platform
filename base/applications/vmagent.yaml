@@ -1,0 +1,10 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: vmagentsample
+  namespace: operators
+spec:
+  replicaCount: 1
+  scrapeInterval: 30s
+  remoteWrite:
+    - url: "http://vmcluster-vmstorage:8480/insert/0/prometheus"

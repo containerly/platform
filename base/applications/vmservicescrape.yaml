@@ -1,0 +1,12 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: my-service-scrape
+  namespace: operators
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  endpoints:
+    - port: http
+      interval: 30s

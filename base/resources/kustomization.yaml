@@ -5,6 +5,7 @@ resources:
   - kafka-topic.yaml
   - git-repository.yaml
   - kustomization.kustomize.yaml
-  - prometheus-rule.yaml
   - configmap.yaml
   - deployment.yaml
+  - service.yaml
+  - vmcluster.yaml
