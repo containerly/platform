@@ -2,7 +2,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - https://operatorhub.io/install/flux-operator.yaml
-  - https://operatorhub.io/install/grafana-operator.yaml
-  - https://operatorhub.io/install/strimzi-kafka-operator.yaml
-  - https://operatorhub.io/install/victoriametrics-operator.yaml
+  - grafana-operator-application.yaml
+  - strimzi-kafka-operator-application.yaml
+  - victoriametrics-operator-application.yaml
