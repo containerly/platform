@@ -1,3 +1,15 @@
+## [1.7.0](https://github.com/containerly/platform/compare/v1.6.0...v1.7.0) (2025-11-18)
+
+### Features
+
+* force release after merge ([66f929a](https://github.com/containerly/platform/commit/66f929a8a75b0cc53d0826c18d0063916a34e237))
+* trigger new release ([14e1fef](https://github.com/containerly/platform/commit/14e1fef6ecccc41224c1750b53f0e6dc41db4888))
+* trigger new release ([b26f28b](https://github.com/containerly/platform/commit/b26f28be440c3360088ffda2392942685a1bc08f))
+* update image ([465edf5](https://github.com/containerly/platform/commit/465edf52d8709ca674781118bcc1ba4a491c1154))
+* update image ([71ebf0d](https://github.com/containerly/platform/commit/71ebf0d72c709a60d8dd3ac62bde72ed8ab7f5b7))
+* update image ([74defbe](https://github.com/containerly/platform/commit/74defbe3dadfa3674a31ca741aa15ff12c5daeb2))
+* update image ([ac934b4](https://github.com/containerly/platform/commit/ac934b41fcaac66c9479aba93c316ba2ab3e0b0a))
+
 ## [1.6.0](https://github.com/containerly/platform/compare/v1.5.0...v1.6.0) (2025-11-18)
 
 ### Features
