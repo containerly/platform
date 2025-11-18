@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/containerly/platform/compare/v1.7.0...v1.8.0) (2025-11-18)
+
+### Features
+
+* update image ([d2dd4fc](https://github.com/containerly/platform/commit/d2dd4fc60f037a2781d8fcdb09595b08e774b826))
+
 ## [1.7.0](https://github.com/containerly/platform/compare/v1.6.0...v1.7.0) (2025-11-18)
 
 ### Features
