@@ -4,12 +4,3 @@ kind: Kustomization
 resources:
   - grafana-operator/
   - victoriametrics-operator/
-
-# Set the namespace for all resources
-namespace: ${NAMESPACE}
-
-# Override the VictoriaMetrics Operator image and tag
-images:
-  - name: manager
-    newName: victoriametrics/operator
-    newTag: ${VM_VERSION}
