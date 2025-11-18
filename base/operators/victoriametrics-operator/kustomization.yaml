@@ -6,4 +6,4 @@ resources:
 images:
   - name: manager
     newName: victoriametrics/operator
-    newTag: ${VM_VERSION}
+    newTag: v0.65.0
