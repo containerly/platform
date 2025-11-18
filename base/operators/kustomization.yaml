@@ -4,3 +4,12 @@ kind: Kustomization
 resources:
   - https://github.com/grafana/grafana-operator/releases/latest/download/kustomize-cluster_scoped.yaml
   - github.com/VictoriaMetrics/operator/config/default?ref=v0.65.0
+
+# Set the namespace for all resources
+namespace: ${NAMESPACE}
+
+# Override the VictoriaMetrics Operator image and tag
+images:
+  - name: manager
+    newName: victoriametrics/operator
+    newTag: ${VM_VERSION}
