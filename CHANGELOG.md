@@ -1,3 +1,15 @@
+## [1.6.0](https://github.com/containerly/platform/compare/v1.5.0...v1.6.0) (2025-11-18)
+
+### Features
+
+* force release after merge ([#27](https://github.com/containerly/platform/issues/27)) ([d169320](https://github.com/containerly/platform/commit/d169320f52fcf41782f98ee9450288728ff3df22))
+
+## [1.5.0](https://github.com/containerly/platform/compare/v1.4.13...v1.5.0) (2025-11-18)
+
+### Features
+
+* **merge:** Merge pull request [#25](https://github.com/containerly/platform/issues/25) from containerly/update/operators ([407abae](https://github.com/containerly/platform/commit/407abaea4ec1b48f78bca5a103b8b0272a2fc36c))
+
 ## [1.4.13](https://github.com/containerly/platform/compare/v1.4.12...v1.4.13) (2025-06-24)
 
 ### Bug Fixes
