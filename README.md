@@ -8,6 +8,7 @@ A Kustomize-based repository for deploying a comprehensive platform with various
 
 - kubectl (v1.25+ recommended)
 - kustomize (v4+)
+- kind
 
 ### Repository Structure
 
