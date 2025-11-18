@@ -8,4 +8,5 @@ resources:
   - kafka-nodepool.yaml
   - kafka.yaml
   - flux-instance.yaml
+  - opensearch-cluster.yaml
   - vmsingle.yaml
