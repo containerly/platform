@@ -1,12 +1,18 @@
+---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 # OpenSearch Operator is installed via Helm
-# Installation: helm repo add opensearch-operator https://opensearch-project.github.io/opensearch-k8s-operator/
-#               helm install opensearch-operator opensearch-operator/opensearch-operator
+# Installation:
+#   helm repo add opensearch-operator \
+#     https://opensearch-project.github.io/opensearch-k8s-operator/
+#   helm install opensearch-operator \
+#     opensearch-operator/opensearch-operator
 # Reference: https://github.com/opensearch-project/opensearch-k8s-operator
 # Version: v2.8.0
 namespace: opensearch-operator-system
 resources:
   - namespace.yaml
-  # Note: The operator deployment is managed by Helm and not included in this kustomization
-  # For a complete installation, use: helm install opensearch-operator opensearch-operator/opensearch-operator
+  # Note: The operator deployment is managed by Helm and not included
+  # in this kustomization. For a complete installation, use:
+  #   helm install opensearch-operator \
+  #     opensearch-operator/opensearch-operator

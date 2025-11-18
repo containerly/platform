@@ -1,3 +1,4 @@
+---
 apiVersion: opensearch.opensearch.org/v1
 kind: OpenSearchCluster
 metadata:
@@ -23,12 +24,12 @@ spec:
           cpu: "500m"
       persistence:
         emptyDir: {}
-  # For production use, configure persistence:
-  # persistence:
-  #   pvc:
-  #     storageClass: "standard"
-  #     accessModes:
-  #       - ReadWriteOnce
-  #     resources:
-  #       requests:
-  #         storage: 50Gi
+      # For production use, configure PVC-based persistence:
+      # persistence:
+      #   pvc:
+      #     storageClass: "standard"
+      #     accessModes:
+      #       - ReadWriteOnce
+      #     resources:
+      #       requests:
+      #         storage: 50Gi
