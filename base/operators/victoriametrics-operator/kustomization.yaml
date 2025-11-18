@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - github.com/VictoriaMetrics/operator/config/default?ref=v0.65.0
 # Uncomment and set these if you want to override the image or namespace for VictoriaMetrics Operator
-namespace: ${NAMESPACE}
 images:
   - name: manager
     newName: victoriametrics/operator
