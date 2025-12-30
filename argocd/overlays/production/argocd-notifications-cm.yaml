@@ -4,7 +4,7 @@ metadata:
   name: argocd-notifications-cm
 data:
   context: |
-    argocdUrl: https://cd.apps.argoproj.io
+    argocdUrl: https://cd.apps.containerly.io
 
   trigger.sync-operation-change: |
     - when: app.status.operationState.phase in ['Succeeded']
@@ -34,7 +34,7 @@ data:
   service.slack: |
     token: $slack-token
     signingSecret: $slack-signing-secret
-  
+
   service.grafana: |
     apiUrl: https://grafana.apps.argoproj.io/api
     apiKey: $grafana-token
