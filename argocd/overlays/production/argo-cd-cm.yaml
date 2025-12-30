@@ -5,7 +5,7 @@ data:
   statusbadge.enabled: 'true'
   users.anonymous.enabled: 'true'
   ga.trackingid: 'UA-105170809-6'
-  url: https://cd.apps.argoproj.io
+  url: https://cd.apps.containerly.io
   configManagementPlugins: |
     - name: flux
       generate:
@@ -17,14 +17,12 @@ data:
       id: github
       name: GitHub
       config:
-        clientID: fb563b3a8dd7ea52f683
+        clientID: Ov23liIfES3DiIzvO8sz
         clientSecret: $argocd-auth:dex.github.clientSecret
         orgs:
-        - name: argoproj
+        - name: containerly
           teams:
-          - argo-rollouts-approvers
-          - argo-workflows-approvers
-          - argocd-approvers
+          - containerly
 kind: ConfigMap
 metadata:
   name: argocd-cm
