@@ -9,7 +9,7 @@ resources:
 - base/argo-cd-ui-ingress.yaml
 - base/rollouts-extension.yaml
 - base/sync-project.yaml
-# - https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/ha/install.yaml
+- https://raw.githubusercontent.com/containerly/platform/main/manifests/install.yaml
 
 components:
 - https://github.com/argoproj-labs/argocd-extensions/manifests
