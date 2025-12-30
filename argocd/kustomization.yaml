@@ -4,8 +4,12 @@ kind: Kustomization
 namespace: argocd
 
 resources:
+- base/argo-cd-issuer.yaml
+- base/argo-cd-certificate.yaml
+- base/argo-cd-ui-ingress.yaml
 - base/rollouts-extension.yaml
 - base/sync-project.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/ha/install.yaml
 
 components:
 - https://github.com/argoproj-labs/argocd-extensions/manifests
