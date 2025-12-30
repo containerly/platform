@@ -21,6 +21,7 @@ patches:
 - path: overlays/production/argocd-notifications-controller-deploy.yaml
 - path: overlays/production/argocd-rbac-cm.yaml
 - path: overlays/production/argocd-server-service.yaml
+- path: overlays/production/remove-dex-resources.yaml
 - path: https://raw.githubusercontent.com/argoproj/argo-cd/master/notifications_catalog/install.yaml
 - path: overlays/production/patch-priority-class.yaml
   target:

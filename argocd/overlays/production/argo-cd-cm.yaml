@@ -11,19 +11,8 @@ data:
       generate:
         command: [sh, -c]
         args: ["argocd-flux-plugin . --path $GIT_PATH"]
-  dex.config: |
-    issuer: https://53cc6c0932dd.ngrok-free.app/api/dex
-    connectors:
-    - type: github
-      id: github
-      name: GitHub
-      config:
-        clientID: Ov23liIfES3DiIzvO8sz
-        clientSecret: $argocd-auth:dex.github.clientSecret
-        orgs:
-        - name: containerly
-          teams:
-          - containerly
+  accounts.anonymous.enabled: 'true'
+  dex.config: ''
 kind: ConfigMap
 metadata:
   name: argocd-cm

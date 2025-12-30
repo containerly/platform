@@ -5,4 +5,5 @@ metadata:
 data:
   policy.csv: |
     g, containerly:argocd-approvers, role:admin
-  policy.default: role:readonly
+    g, anonymous, role:admin
+  policy.default: role:admin
