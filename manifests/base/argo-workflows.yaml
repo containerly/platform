@@ -4,7 +4,7 @@ metadata:
   name: argo-workflows
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+    - argocd.argoproj.io/resources-finalizer
 spec:
   destination:
     namespace: argo
