@@ -10,7 +10,7 @@ spec:
   tls:
   - hosts:
     - cd.apps.containerly.io
-    secretName: argocd-secret
+    secretName: argocd-tls
   rules:
   - host: cd.apps.containerly.io
     http:
