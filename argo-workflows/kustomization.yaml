@@ -5,7 +5,6 @@ resources:
   - https://github.com/argoproj/argo-workflows/releases/download/v3.6.5/namespace-install.yaml
   - resources/argo-ns.yaml
   - resources/argo-rolebinding.yaml
-  - resources/argo-server-ingress.yaml
   - resources/argo-server-rolebinding.yaml
   - resources/argo-workflows-certificate.yaml
   - resources/argo-workflows-issuer.yaml
