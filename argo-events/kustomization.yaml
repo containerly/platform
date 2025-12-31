@@ -9,6 +9,7 @@ resources:
   - base/operate-workflow-sa.yaml
   - base/operate-wf-rbac.yaml
   - base/calendar-eventsource.yaml
+  - base/github-eventsource.yaml
   - base/workflow-sensor.yaml
   - base/log-sensor.yaml
 
