@@ -20,6 +20,6 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
     ### Disable Argo CD auto-sync to better control updates of what is merged upstream
-    # automated:
-    #   prune: true
-    #   selfHeal: true
+    automated:
+      prune: true
+      selfHeal: true
