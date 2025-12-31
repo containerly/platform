@@ -10,3 +10,4 @@ resources:
   - base/cluster-config.yaml
   - base/cert-manager.yaml
   - base/grafana-operator.yaml
+  - base/prometheus-operator.yaml
