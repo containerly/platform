@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: argo-events
-    repoURL: https://github.com/argoproj/argoproj-deployments
+    repoURL: https://github.com/containerly/platform
     targetRevision: HEAD
   syncPolicy:
     syncOptions:
