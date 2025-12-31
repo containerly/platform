@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github
+spec:
+  service:
+    ports:
+      - name: internal-repo
+        port: 12000
+        targetPort: 12000
+  github:
+    internal-repo:
+      repositories:
+        - owner: containerly
+          names:
+            - openapi-ruby-on-rails
+      webhook:
+        endpoint: /push
+        port: "12000"
+        method: POST
+        url: https://argo-events.internal.example.com/push
+      events:
+        - push
+        - pull_request
+      apiToken:
+        name: github-access
+        key: token
+      webhookSecret:
+        name: github-access
+        key: secret
+      insecure: false
+      active: true
+      contentType: json
