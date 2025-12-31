@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-operator
+  namespace: argocd
+  ### Just as a prevention, we do not want Argo CD to destruct it's dependencies
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: fluent-operator
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: fluent-operator
+    repoURL: https://github.com/containerly/platform
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
