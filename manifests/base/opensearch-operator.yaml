@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opensearch-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/opensearch-project/opensearch-k8s-operator.git
+    targetRevision: main
+    path: charts/opensearch-operator
+    helm:
+      releaseName: opensearch-operator
+      valuesObject:
+        namespace: opensearch-system
+        image:
+          tag: 2.16.0
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: opensearch-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
