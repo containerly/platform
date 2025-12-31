@@ -9,10 +9,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - cd.apps.containerly.io
+    - argocd.localtest.me
     secretName: argocd-tls
   rules:
-  - host: cd.apps.containerly.io
+  - host: argocd.localtest.me
     http:
       paths:
       - path: /

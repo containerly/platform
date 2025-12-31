@@ -7,6 +7,6 @@ spec:
   issuerRef:
     name: argo-cd-issuer
     kind: Issuer
-  commonName: cd.apps.containerly.io
+  commonName: argocd.localtest.me
   dnsNames:
-  - cd.apps.containerly.io
+  - argocd.localtest.me
