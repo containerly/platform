@@ -12,3 +12,4 @@ resources:
   - base/grafana-operator.yaml
   - base/prometheus-operator.yaml
   - base/opensearch-operator.yaml
+  - base/fluent-operator.yaml
