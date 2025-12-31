@@ -7,6 +7,7 @@ resources:
   - base/argo-rollouts.yaml
   - base/argo-workflows.yaml
   - base/argocd-image-updater.yaml
+  - base/external-secrets-operator.yaml
   - base/cluster-config.yaml
   - base/cert-manager.yaml
   - base/grafana-operator.yaml
