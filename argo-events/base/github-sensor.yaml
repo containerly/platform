@@ -31,7 +31,7 @@ spec:
           - path: body.pull_request.base.ref
             type: string
             value:
-              - master
+              - main
   triggers:
     - template:
         name: github-workflow-trigger
