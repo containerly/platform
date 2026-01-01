@@ -226,11 +226,11 @@ spec:
               dest: spec.arguments.parameters.4.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: "{{ default 'bundle exec rake test' .Input.body.pull_request.head.repo.testCommand }}"
+                dataTemplate: '{{ default "bundle exec rake test" .Input.body.pull_request.head.repo.testCommand }}'
               dest: spec.arguments.parameters.5.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: "{{ if .Input.body.pull_request.head.repo }}{{ default \"Dockerfile\" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}"
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
               dest: spec.arguments.parameters.6.value
             - src:
                 dependencyName: pr-event
