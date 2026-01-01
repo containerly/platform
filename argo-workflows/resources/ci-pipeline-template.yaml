@@ -357,6 +357,7 @@ spec:
           - |
             set -eu
             set -o pipefail 2>/dev/null || true
+            set -x
             echo "==== Running Application Tests ===="
 
             echo "Ruby version: $(ruby --version)"
