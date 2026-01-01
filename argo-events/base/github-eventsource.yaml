@@ -34,7 +34,7 @@ spec:
         endpoint: /push
         port: "12000"
         method: POST
-        url: https://68f7ba8b4541.ngrok-free.app/push
+        url: https://a18b7f976d7e.ngrok-free.app/push
       events:
         - "*"
       apiToken:
