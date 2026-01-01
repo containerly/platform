@@ -4,6 +4,8 @@ metadata:
   name: ci-pipeline
   namespace: workflow-playground
 spec:
+  imagePullSecrets:
+    - name: docker-registry-config
   arguments:
     parameters:
       - name: repo_url
@@ -49,6 +51,8 @@ spec:
             storage: 10Gi
   volumes:
     - name: github-token
+      # Argo Events Personal Access Token —
+      # Argo Workflows Personal Access Token
       secret:
         secretName: github-access
   templates:
