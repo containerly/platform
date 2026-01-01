@@ -1,3 +1,17 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: docker-registry-config
+  namespace: workflow-playground
+spec:
+  encryptedData:
+    config.json: AgCVkMflZbKXU++XNKekCTT0tuFqmL0g2HXSZzE+abMlPJP6PezUsZUqKGfAsBooxF+p1rlnykvFetg+WuBdUdz2/9L9MnnxxFIcXJzTZNgWAGFPOValtZDkxMdMddpQO8xArE3Nc3tJqsnEtnFeflp8JIu2SHTzPhLpWVTWdSLA5aw/vxSBN6pJgAcvyFKB7DMViZ6cw3pQ911jN455EKSMGGY1kx0SkJD4WsR7n+JO73OtPp9k9DmB5hHVrJCH2yPsBaHo6iR3qSISmeu+8VLRtqs2mgwoBXi71HEKBZ9eKX50R6cUxJ/NiALoJmMOhbU8HtIFzRUaYuaBis5Yruw5e8eNNwEOkJ7E5IUrcg95Y3oNKBGtckioyyETTmUculBQA7CGLybIaEwFL4jwnNkrOb+zvRA5mCk3vG/vQ06Tgkrc9AYI+P/+G9AgrXn9xRDMxuPhEMb+huZFAEd3I5L3EAxRsN4MIpvk+d2t7m84b4DcHSFN8PoXcJe6lCRfxS78yvVoZkPeMV564tieW7xO6NVaJgFMJ9BGT5mfK5PoruXSuDpvQoQqHgQ5jAREq2pL7be5noGisr3+wq2y9dMb3TSO2qISwXQdXpMOOJur4AHA1rs8nNBup+/aM6fVUVKheN0gzs83DV04nZdE1vSdjzwOyI0pqrvj+8T/tg6yjLTo6dgogHnPuqJr0/Z/Q6Y142Rm3No3wN/Z9gxO4vymkCU2Afdisb9pCo6BuUbWv6mQCufwQva0h1GOvn0266YZgyf4PWpduyEOwPwiuH4nNhLS+YqRisnufx+t6asjjCc0tj0TTDtK+ehMAbbx/W/x4aPGwFCGsNLiG5XFYEua2ZmorsJ8eIrv9VKeLQO18orLgQ9l2L6pRNGO
+  template:
+    metadata:
+      name: docker-registry-config
+      namespace: workflow-playground
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
