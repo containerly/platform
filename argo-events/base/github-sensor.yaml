@@ -114,10 +114,30 @@ spec:
                     steps:
                       - - name: clone
                           template: git-clone
+                          arguments:
+                            parameters:
+                              - name: repo-url
+                                value: "{{workflow.parameters.repo-url}}"
+                              - name: revision
+                                value: "{{workflow.parameters.revision}}"
                         - name: tests
                           template: run-tests
+                          arguments:
+                            parameters:
+                              - name: test-command
+                                value: "{{workflow.parameters.test-command}}"
                         - name: build
                           template: buildkit-build
+                          arguments:
+                            parameters:
+                              - name: image-base
+                                value: "{{workflow.parameters.image-base}}"
+                              - name: short-tag
+                                value: "{{workflow.parameters.short-tag}}"
+                              - name: pr-tag
+                                value: "{{workflow.parameters.pr-tag}}"
+                              - name: dockerfile
+                                value: "{{workflow.parameters.dockerfile}}"
                   - name: git-clone
                     inputs:
                       parameters:
