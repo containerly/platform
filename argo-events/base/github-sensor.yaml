@@ -166,14 +166,9 @@ spec:
                       args:
                         - |
                           set -eo pipefail
-                          cat <<'EOF' >/tmp/git-askpass.sh
-                          #!/bin/sh
-                          case "$1" in
-                            Username*) echo "x-access-token" ;;
-                            Password*) echo "$GITHUB_TOKEN" ;;
-                          esac
-                          EOF
-                          chmod +x /tmp/git-askpass.sh
+                          git config --global credential.helper store
+                          printf 'https://x-access-token:%s@github.com\n' "$GITHUB_TOKEN" > /root/.git-credentials
+                          chmod 600 /root/.git-credentials
                           git clone --depth 1 "{{inputs.parameters.repo-url}}" /workspace && \
                           cd /workspace && \
                           git fetch origin "{{inputs.parameters.revision}}" && \
@@ -184,10 +179,6 @@ spec:
                             secretKeyRef:
                               name: github-access
                               key: token
-                        - name: GIT_ASKPASS
-                          value: /tmp/git-askpass.sh
-                        - name: GIT_TERMINAL_PROMPT
-                          value: "0"
                       resources:
                         requests:
                           cpu: 250m
