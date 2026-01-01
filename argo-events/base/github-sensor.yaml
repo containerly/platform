@@ -6,11 +6,12 @@ metadata:
   namespace: workflow-playground
 spec:
   encryptedData:
-    config.json: AgCVkMflZbKXU++XNKekCTT0tuFqmL0g2HXSZzE+abMlPJP6PezUsZUqKGfAsBooxF+p1rlnykvFetg+WuBdUdz2/9L9MnnxxFIcXJzTZNgWAGFPOValtZDkxMdMddpQO8xArE3Nc3tJqsnEtnFeflp8JIu2SHTzPhLpWVTWdSLA5aw/vxSBN6pJgAcvyFKB7DMViZ6cw3pQ911jN455EKSMGGY1kx0SkJD4WsR7n+JO73OtPp9k9DmB5hHVrJCH2yPsBaHo6iR3qSISmeu+8VLRtqs2mgwoBXi71HEKBZ9eKX50R6cUxJ/NiALoJmMOhbU8HtIFzRUaYuaBis5Yruw5e8eNNwEOkJ7E5IUrcg95Y3oNKBGtckioyyETTmUculBQA7CGLybIaEwFL4jwnNkrOb+zvRA5mCk3vG/vQ06Tgkrc9AYI+P/+G9AgrXn9xRDMxuPhEMb+huZFAEd3I5L3EAxRsN4MIpvk+d2t7m84b4DcHSFN8PoXcJe6lCRfxS78yvVoZkPeMV564tieW7xO6NVaJgFMJ9BGT5mfK5PoruXSuDpvQoQqHgQ5jAREq2pL7be5noGisr3+wq2y9dMb3TSO2qISwXQdXpMOOJur4AHA1rs8nNBup+/aM6fVUVKheN0gzs83DV04nZdE1vSdjzwOyI0pqrvj+8T/tg6yjLTo6dgogHnPuqJr0/Z/Q6Y142Rm3No3wN/Z9gxO4vymkCU2Afdisb9pCo6BuUbWv6mQCufwQva0h1GOvn0266YZgyf4PWpduyEOwPwiuH4nNhLS+YqRisnufx+t6asjjCc0tj0TTDtK+ehMAbbx/W/x4aPGwFCGsNLiG5XFYEua2ZmorsJ8eIrv9VKeLQO18orLgQ9l2L6pRNGO
+    config.json: AgC29t6y6N/mXZ7sya3eoQZl/3aA6Hw6jKlFP6jI2p5CGU6hwEyW4tr1ROxoEm1OgNlHwiLY0uHInVEQ/egek4kxMY/+4vm5OiD9742tGQXVRhlOrcJrXDhotCrQXe2YwO3BGX7UL9Bql1/cTljXc4m0QYI1zaCX95zpPjIkl01Bs6AtJ6cFtW6pTsstIM8IGw7pw8ANNrfCP2svfrAdhG9bCXKQW3fdbpyyG9ygj7pPs6R4wAe08TCUxdxuFedNiNs2y5AP9mIMSlJC5sOcf48cHWXoJAik2sa74GZ5CRxMreS5WIWkaMYztYS+7dCsOm/19ewr6i6VUHkzALB/mLawCQFhd6gk3tWmSQ/oZX/wieENXZ06+9fnxhN1Y85gXy5Lyy43YTDR3wQ7AosvIC5MxSr/TVj0lQbUjxLPVu1VW4W3/r/z6vhaHkAFe2ks0rqqwL3Fc3DceaZ1qUTf5VOO4zs90Si7+o67D3VVkKIhUWkvqRzkaWBoFZR9aQDAuk8fioTAxEW8GJSjR+ex9B8dW1JcuZVymGOHfwtjia5QL3dCjdu43Lej2erDUYyQtzeKaUagoPsdlFZhQZdQfKSICF1FuG66RAsdNJ5omk3Lm0IfsX7pjkQofJ+76XvfoSC6Fb62vULojqJbUZuGGf41Te5VCT1o6BD0V3BQJqpBcOQLbfQc2Q+N1QXBYsu+6CHzsNVMTmklCz+0vxZmf28GocdT/BiI98xhpeVdOdLzlUtsYTzqiMLAdNhJDmMq7h32dBtvL5OHdJSliZFns323omd2amnDp94tWkoAAVGaXQM2K1vMzbKmzuDLRnMAt1z2TUh8LfzhCicGpnGEpptpA+vCjbThZd/PpwewQfhqtPi32I0Q
   template:
     metadata:
       name: docker-registry-config
       namespace: workflow-playground
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
@@ -185,6 +186,8 @@ spec:
                               key: token
                         - name: GIT_ASKPASS
                           value: /tmp/git-askpass.sh
+                        - name: GIT_TERMINAL_PROMPT
+                          value: "0"
                       resources:
                         requests:
                           cpu: 250m
@@ -219,6 +222,8 @@ spec:
                         - name: docker-config
                           mountPath: /root/.docker
                           readOnly: true
+                      securityContext:
+                        runAsUser: 0
                   - name: buildkit-build
                     inputs:
                       parameters:
@@ -256,6 +261,8 @@ spec:
                         - name: docker-config
                           mountPath: /root/.docker
                           readOnly: true
+                      securityContext:
+                        privileged: true
                 volumes:
                   - name: docker-config
                     secret:
