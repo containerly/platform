@@ -17,3 +17,17 @@ spec:
             - --auth-mode=server
             - --secure=false
             - --x-frame-options=SAMEORIGIN
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 2746
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 2746
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
