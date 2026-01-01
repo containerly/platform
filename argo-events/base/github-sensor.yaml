@@ -43,6 +43,7 @@ spec:
                 generateName: github-
               spec:
                 entrypoint: print-message
+                serviceAccountName: operate-workflow-sa
                 arguments:
                   parameters:
                     - name: pr-title
@@ -86,6 +87,7 @@ spec:
                 generateName: github-docker-build-
               spec:
                 entrypoint: build-image
+                serviceAccountName: operate-workflow-sa
                 arguments:
                   parameters:
                     - name: repo-url
