@@ -1,0 +1,423 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: ci-pipeline
+  namespace: workflow-playground
+spec:
+  arguments:
+    parameters:
+      - name: repo_url
+        value: ""
+      - name: branch
+        value: ""
+      - name: dockerfile
+        value: "Dockerfile"
+      - name: context_path
+        value: ""
+      - name: image_name
+        value: ""
+      - name: image_tag
+        value: ""
+      - name: test_command
+        value: "bundle exec rake test"
+      - name: github_username
+        value: ""
+  entrypoint: main
+  activeDeadlineSeconds: 1800
+  ttlStrategy:
+    secondsAfterCompletion: 3600
+    secondsAfterSuccess: 1800
+    secondsAfterFailure: 7200
+  volumeClaimTemplates:
+    - metadata:
+        name: workspace
+        generateName: ci-workspace-
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: buildkit-cache
+        generateName: buildkit-cache-
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+  volumes:
+    - name: github-token
+      secret:
+        secretName: github-access
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: verify-token
+            template: verify-github-token
+          - name: clone
+            template: git-clone
+            dependencies:
+              - verify-token
+            arguments:
+              parameters:
+                - name: repo_url
+                  value: "{{workflow.parameters.repo_url}}"
+                - name: branch
+                  value: "{{workflow.parameters.branch}}"
+          - name: security-scan
+            template: security-scan
+            dependencies:
+              - clone
+            arguments:
+              parameters:
+                - name: dockerfile
+                  value: "{{workflow.parameters.dockerfile}}"
+          - name: build-image
+            template: buildkit-build
+            dependencies:
+              - clone
+            arguments:
+              parameters:
+                - name: context_path
+                  value: "{{workflow.parameters.context_path}}"
+                - name: dockerfile
+                  value: "{{workflow.parameters.dockerfile}}"
+                - name: image_name
+                  value: "{{workflow.parameters.image_name}}"
+                - name: image_tag
+                  value: "{{workflow.parameters.image_tag}}"
+                - name: github_username
+                  value: "{{workflow.parameters.github_username}}"
+          - name: test
+            template: run-tests
+            dependencies:
+              - build-image
+              - security-scan
+            arguments:
+              parameters:
+                - name: image_ref
+                  value: "{{tasks.build-image.outputs.parameters.image-ref}}"
+                - name: test_command
+                  value: "{{workflow.parameters.test_command}}"
+          - name: tag-latest
+            template: tag-as-latest
+            dependencies:
+              - test
+            arguments:
+              parameters:
+                - name: image_name
+                  value: "{{workflow.parameters.image_name}}"
+                - name: source_tag
+                  value: "{{workflow.parameters.image_tag}}"
+                - name: github_username
+                  value: "{{workflow.parameters.github_username}}"
+    - name: verify-github-token
+      container:
+        image: curlimages/curl:8.4.0
+        command:
+          - /bin/sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Verifying GitHub Token ===="
+
+            if [ ! -f /github-token/token ]; then
+              echo "ERROR: GitHub token file not found!"
+              exit 1
+            fi
+
+            TOKEN=$(cat /github-token/token)
+            echo "Token length: ${#TOKEN} characters"
+
+            if [ ${#TOKEN} -lt 30 ]; then
+              echo "ERROR: GitHub token seems too short."
+              exit 1
+            fi
+
+            RESPONSE=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/user)
+
+            if [ "$RESPONSE" != "200" ]; then
+              echo "ERROR: GitHub API returned status $RESPONSE"
+              cat /tmp/response.json || true
+              exit 1
+            fi
+
+            SCOPES=$(curl -s -I -H "Authorization: Bearer $TOKEN" https://api.github.com/user | grep -i "x-oauth-scopes:" || echo "")
+            echo "Token scopes: $SCOPES"
+
+            if ! echo "$SCOPES" | grep -q "write:packages"; then
+              echo "WARNING: Token may be missing 'write:packages' scope for GHCR push"
+            fi
+
+            echo "GitHub token verification completed ✅"
+        volumeMounts:
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 50m
+          limits:
+            memory: 64Mi
+            cpu: 100m
+    - name: git-clone
+      inputs:
+        parameters:
+          - name: repo_url
+          - name: branch
+      container:
+        image: alpine/git:2.47.0
+        workingDir: /workspace
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Cloning Repository ===="
+
+            TOKEN=$(cat /github-token/token)
+            git config --global credential.helper store
+            printf 'https://x-access-token:%s@github.com\n' "$TOKEN" > /root/.git-credentials
+            chmod 600 /root/.git-credentials
+
+            git clone \
+              --depth 1 \
+              --branch "{{inputs.parameters.branch}}" \
+              --single-branch \
+              "{{inputs.parameters.repo_url}}" \
+              .
+
+            echo "Repository cloned successfully"
+            echo "Git commit: $(git rev-parse HEAD)"
+            echo "Files in workspace:"
+            ls -la
+
+            chmod -R 755 .
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 100m
+          limits:
+            memory: 128Mi
+            cpu: 200m
+    - name: security-scan
+      inputs:
+        parameters:
+          - name: dockerfile
+      container:
+        image: hadolint/hadolint:v2.12.0-alpine
+        workingDir: /workspace
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Running Security Scan ===="
+
+            echo "Linting {{inputs.parameters.dockerfile}}..."
+            hadolint "{{inputs.parameters.dockerfile}}" || echo "Dockerfile linting completed with warnings"
+
+            echo "Checking for potential secrets in code..."
+            if grep -r -i "password\|secret\|key\|token" --exclude-dir=.git . || true; then
+              echo "Warning: Found potential secrets in code (review above)"
+            fi
+
+            echo "Security scan completed ✅"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 100m
+          limits:
+            memory: 128Mi
+            cpu: 200m
+    - name: buildkit-build
+      inputs:
+        parameters:
+          - name: context_path
+          - name: dockerfile
+          - name: image_name
+          - name: image_tag
+          - name: github_username
+      container:
+        image: moby/buildkit:buildx-stable-1
+        workingDir: /workspace{{inputs.parameters.context_path}}
+        env:
+          - name: DOCKER_CONFIG
+            value: /tmp/.docker
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Setting up GHCR Authentication ===="
+
+            if [ -f /github-token/token ]; then
+              mkdir -p /tmp/.docker
+              TOKEN=$(cat /github-token/token)
+
+              cat > /tmp/.docker/config.json <<EOF
+            {
+              "auths": {
+                "ghcr.io": {
+                  "auth": "$(echo -n "{{inputs.parameters.github_username}}:$TOKEN" | base64 -w0)"
+                }
+              }
+            }
+            EOF
+              echo "Authentication configured for ghcr.io ✅"
+            else
+              echo "ERROR: GitHub token not found!"
+              exit 1
+            fi
+
+            echo "==== Building with BuildKit ===="
+
+            CACHE_FROM="--import-cache type=registry,ref={{inputs.parameters.image_name}}:buildcache"
+            CACHE_TO="--export-cache type=registry,ref={{inputs.parameters.image_name}}:buildcache,mode=max"
+
+            buildctl-daemonless.sh build \
+              --frontend dockerfile.v0 \
+              --local context=. \
+              --local dockerfile=. \
+              --opt filename={{inputs.parameters.dockerfile}} \
+              $CACHE_FROM \
+              $CACHE_TO \
+              --output type=image,name={{inputs.parameters.image_name}}:{{inputs.parameters.image_tag}},push=true,oci-mediatypes=true \
+              2>&1 | tee /tmp/buildkit.log
+
+            IMAGE_REF=$(grep -o 'ghcr\.io/[^@]*@sha256:[a-f0-9]\{64\}' /tmp/buildkit.log | head -1 || echo "")
+
+            if [ -z "$IMAGE_REF" ]; then
+              echo "Warning: Could not extract SHA reference, using tag-based reference"
+              IMAGE_REF="{{inputs.parameters.image_name}}:{{inputs.parameters.image_tag}}"
+            fi
+
+            echo "$IMAGE_REF" > /tmp/image-ref.txt
+            echo "Built image: $IMAGE_REF ✅"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: buildkit-cache
+            mountPath: /var/lib/buildkit
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        securityContext:
+          privileged: true
+          seccompProfile:
+            type: Unconfined
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 500m
+          limits:
+            memory: 4Gi
+            cpu: "2"
+      outputs:
+        parameters:
+          - name: image-ref
+            valueFrom:
+              path: /tmp/image-ref.txt
+    - name: run-tests
+      inputs:
+        parameters:
+          - name: image_ref
+          - name: test_command
+      container:
+        image: "{{inputs.parameters.image_ref}}"
+        workingDir: /usr/src/myapp
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Running Application Tests ===="
+
+            echo "Ruby version: $(ruby --version)"
+            echo "Bundle version: $(bundle --version)"
+
+            bundle check || bundle install --jobs=4 --retry=3
+
+            echo "Executing: {{inputs.parameters.test_command}}"
+            {{inputs.parameters.test_command}}
+
+            echo "Tests completed successfully ✅"
+        env:
+          - name: RAILS_ENV
+            value: test
+          - name: RACK_ENV
+            value: test
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: "1"
+    - name: tag-as-latest
+      inputs:
+        parameters:
+          - name: image_name
+          - name: source_tag
+          - name: github_username
+      container:
+        image: curlimages/curl:8.4.0
+        command:
+          - /bin/sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Tagging image as latest ===="
+
+            if [ -f /github-token/token ]; then
+              TOKEN=$(cat /github-token/token)
+
+              REPO_NAME=$(echo "{{inputs.parameters.image_name}}" | sed 's|ghcr.io/||')
+
+              MANIFEST=$(curl -s -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+                "https://ghcr.io/v2/$REPO_NAME/manifests/{{inputs.parameters.source_tag}}")
+
+              curl -X PUT -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/vnd.docker.distribution.manifest.v2+json" \
+                -d "$MANIFEST" \
+                "https://ghcr.io/v2/$REPO_NAME/manifests/latest"
+
+              echo "Successfully tagged {{inputs.parameters.image_name}}:{{inputs.parameters.source_tag}} as latest ✅"
+            else
+              echo "ERROR: GitHub token not found!"
+              exit 1
+            fi
+        volumeMounts:
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 50m
+          limits:
+            memory: 64Mi
+            cpu: 100m
