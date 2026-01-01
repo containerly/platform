@@ -176,6 +176,9 @@ spec:
                           set -eo pipefail
                           cd /workspace
                           {{inputs.parameters.test-command}}
+                      env:
+                        - name: DOCKER_CONFIG
+                          value: /root/.docker
                       resources:
                         requests:
                           cpu: 500m
@@ -183,6 +186,9 @@ spec:
                       volumeMounts:
                         - name: workspace
                           mountPath: /workspace
+                        - name: docker-config
+                          mountPath: /root/.docker
+                          readOnly: true
                   - name: buildkit-build
                     inputs:
                       parameters:
