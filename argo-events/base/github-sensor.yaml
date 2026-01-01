@@ -151,10 +151,26 @@ spec:
                       args:
                         - |
                           set -eo pipefail
+                          cat <<'EOF' >/tmp/git-askpass.sh
+                          #!/bin/sh
+                          case "$1" in
+                            Username*) echo "x-access-token" ;;
+                            Password*) echo "$GITHUB_TOKEN" ;;
+                          esac
+                          EOF
+                          chmod +x /tmp/git-askpass.sh
                           git clone --depth 1 "{{inputs.parameters.repo-url}}" /workspace && \
                           cd /workspace && \
                           git fetch origin "{{inputs.parameters.revision}}" && \
                           git checkout "{{inputs.parameters.revision}}"
+                      env:
+                        - name: GITHUB_TOKEN
+                          valueFrom:
+                            secretKeyRef:
+                              name: github-access
+                              key: token
+                        - name: GIT_ASKPASS
+                          value: /tmp/git-askpass.sh
                       resources:
                         requests:
                           cpu: 250m
