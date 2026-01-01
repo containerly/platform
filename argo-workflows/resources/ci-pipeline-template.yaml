@@ -355,25 +355,28 @@ spec:
           - -c
         args:
           - |
+            set -eu
             if command -v bash >/dev/null 2>&1; then
-              exec bash -lc '
-                set -euo pipefail
-                set -x
-                echo "==== Running Application Tests ===="
+              cat <<'EOS' >/tmp/run-tests.sh
+            set -euo pipefail
+            set -x
+            echo "==== Running Application Tests ===="
 
-                echo "Ruby version: $(ruby --version)"
-                echo "Bundle version: $(bundle --version)"
+            echo "Ruby version: $(ruby --version)"
+            echo "Bundle version: $(bundle --version)"
 
-                bundle check || bundle install --jobs=4 --retry=3
+            bundle check || bundle install --jobs=4 --retry=3
 
-                echo "Executing: {{inputs.parameters.test_command}}"
-                {{inputs.parameters.test_command}}
+            echo "Executing: {{inputs.parameters.test_command}}"
+            {{inputs.parameters.test_command}}
 
-                echo "Tests completed successfully ✅"
-              '
+            echo "Tests completed successfully ✅"
+            EOS
+              chmod +x /tmp/run-tests.sh
+              bash /tmp/run-tests.sh
+              exit $?
             fi
 
-            set -eu
             set -o pipefail 2>/dev/null || true
             set -x
             echo "==== Running Application Tests ===="
