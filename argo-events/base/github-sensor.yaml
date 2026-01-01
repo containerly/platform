@@ -100,164 +100,26 @@ spec:
               kind: Workflow
               metadata:
                 generateName: github-docker-build-
+                namespace: workflow-playground
               spec:
-                entrypoint: build-image
                 serviceAccountName: operate-workflow-sa
+                workflowTemplateRef:
+                  name: ci-pipeline
                 arguments:
                   parameters:
-                    - name: repo-url
-                    - name: revision
-                    - name: image-base
-                      value: ghcr.io/containerly/openapi-ruby-on-rails
-                    - name: short-tag
-                    - name: pr-tag
-                    - name: test-command
-                      value: bundle exec rake test
+                    - name: repo_url
+                    - name: branch
                     - name: dockerfile
-                      value: Dockerfile
-                volumeClaimTemplates:
-                  - metadata:
-                      name: workspace
-                    spec:
-                      accessModes:
-                        - ReadWriteOnce
-                      resources:
-                        requests:
-                          storage: 5Gi
-                templates:
-                  - name: build-image
-                    steps:
-                      - - name: clone
-                          template: git-clone
-                          arguments:
-                            parameters:
-                              - name: repo-url
-                                value: "{{workflow.parameters.repo-url}}"
-                              - name: revision
-                                value: "{{workflow.parameters.revision}}"
-                        - name: tests
-                          template: run-tests
-                          arguments:
-                            parameters:
-                              - name: test-command
-                                value: "{{workflow.parameters.test-command}}"
-                        - name: build
-                          template: buildkit-build
-                          arguments:
-                            parameters:
-                              - name: image-base
-                                value: "{{workflow.parameters.image-base}}"
-                              - name: short-tag
-                                value: "{{workflow.parameters.short-tag}}"
-                              - name: pr-tag
-                                value: "{{workflow.parameters.pr-tag}}"
-                              - name: dockerfile
-                                value: "{{workflow.parameters.dockerfile}}"
-                  - name: git-clone
-                    inputs:
-                      parameters:
-                        - name: repo-url
-                        - name: revision
-                    container:
-                      image: alpine/git:v2.52.0
-                      command:
-                        - sh
-                        - -c
-                      args:
-                        - |
-                          set -eo pipefail
-                          git config --global credential.helper store
-                          printf 'https://x-access-token:%s@github.com\n' "$GITHUB_TOKEN" > /root/.git-credentials
-                          chmod 600 /root/.git-credentials
-                          git clone --depth 1 "{{inputs.parameters.repo-url}}" /workspace && \
-                          cd /workspace && \
-                          git fetch origin "{{inputs.parameters.revision}}" && \
-                          git checkout "{{inputs.parameters.revision}}"
-                      env:
-                        - name: GITHUB_TOKEN
-                          valueFrom:
-                            secretKeyRef:
-                              name: github-access
-                              key: token
-                      resources:
-                        requests:
-                          cpu: 250m
-                          memory: 256Mi
-                      volumeMounts:
-                        - name: workspace
-                          mountPath: /workspace
-                  - name: run-tests
-                    inputs:
-                      parameters:
-                        - name: test-command
-                    container:
-                      image: ghcr.io/containerly/openapi-ruby-on-rails-test:latest
-                      command:
-                        - sh
-                        - -c
-                      args:
-                        - |
-                          set -eo pipefail
-                          cd /workspace
-                          {{inputs.parameters.test-command}}
-                      env:
-                        - name: DOCKER_CONFIG
-                          value: /root/.docker
-                      resources:
-                        requests:
-                          cpu: 500m
-                          memory: 512Mi
-                      volumeMounts:
-                        - name: workspace
-                          mountPath: /workspace
-                        - name: docker-config
-                          mountPath: /root/.docker
-                          readOnly: true
-                      securityContext:
-                        runAsUser: 0
-                  - name: buildkit-build
-                    inputs:
-                      parameters:
-                        - name: image-base
-                        - name: short-tag
-                        - name: pr-tag
-                        - name: dockerfile
-                    container:
-                      image: moby/buildkit:buildx-stable-1
-                      command:
-                        - buildctl-daemonless.sh
-                        - build
-                        - --frontend
-                        - dockerfile.v0
-                        - --local
-                        - context=/workspace
-                        - --local
-                        - dockerfile=/workspace
-                        - --opt
-                        - filename={{inputs.parameters.dockerfile}}
-                        - --output
-                        - type=image,name={{inputs.parameters.image-base}}:{{inputs.parameters.short-tag}},push=true
-                        - --output
-                        - type=image,name={{inputs.parameters.image-base}}:{{inputs.parameters.pr-tag}},push=true
-                      env:
-                        - name: DOCKER_CONFIG
-                          value: /root/.docker
-                      resources:
-                        requests:
-                          cpu: 500m
-                          memory: 512Mi
-                      volumeMounts:
-                        - name: workspace
-                          mountPath: /workspace
-                        - name: docker-config
-                          mountPath: /root/.docker
-                          readOnly: true
-                      securityContext:
-                        privileged: true
-                volumes:
-                  - name: docker-config
-                    secret:
-                      secretName: docker-registry-config
+                      value: "Dockerfile"
+                    - name: context_path
+                      value: ""
+                    - name: image_name
+                      value: ghcr.io/containerly/openapi-ruby-on-rails
+                    - name: image_tag
+                    - name: test_command
+                      value: bundle exec rake test
+                    - name: github_username
+                      value: containerly
           parameters:
             - src:
                 dependencyName: pr-event
@@ -265,23 +127,19 @@ spec:
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: pr-event
-                dataKey: body.pull_request.head.sha
+                dataKey: body.pull_request.head.ref
               dest: spec.arguments.parameters.1.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: "{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
-              dest: spec.arguments.parameters.3.value
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
+              dest: spec.arguments.parameters.2.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: "pr-{{ .Input.body.pull_request.number }}"
-              dest: spec.arguments.parameters.4.value
-            - src:
-                dependencyName: pr-event
-                dataTemplate: '{{ default "bundle exec rake test" .Input.body.pull_request.head.repo.testCommand }}'
+                dataTemplate: 'pr-{{ .Input.body.pull_request.number }}-{{ .Input.body.pull_request.head.sha | substr 0 7 }}'
               dest: spec.arguments.parameters.5.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
+                dataTemplate: '{{ default "bundle exec rake test" .Input.body.pull_request.head.repo.testCommand }}'
               dest: spec.arguments.parameters.6.value
       retryStrategy:
         steps: 3
