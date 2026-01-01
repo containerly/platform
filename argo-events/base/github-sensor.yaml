@@ -6,13 +6,11 @@ spec:
   template:
     serviceAccountName: operate-workflow-sa
   dependencies:
-    - name: test-dep
+    - name: pr-event
       eventSourceName: github
       eventName: internal-repo
       filters:
         data:
-          # Type of Github event that triggered the delivery: [pull_request, push, issues, label, ...]
-          # https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads
           - path: headers.X-Github-Event
             type: string
             value:
@@ -34,7 +32,7 @@ spec:
               - main
   triggers:
     - template:
-        name: github-workflow-trigger
+        name: github-message
         k8s:
           operation: create
           source:
@@ -63,20 +61,179 @@ spec:
                       args: ["{{inputs.parameters.pr-title}}"]
           parameters:
             - src:
-                dependencyName: test-dep
+                dependencyName: pr-event
                 dataKey: body.pull_request.title
               dest: spec.arguments.parameters.0.value
             - src:
-                dependencyName: test-dep
+                dependencyName: pr-event
                 dataKey: body.pull_request.number
               dest: spec.arguments.parameters.1.value
             - src:
-                dependencyName: test-dep
+                dependencyName: pr-event
                 dataTemplate: "{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
               dest: spec.arguments.parameters.2.value
-            # Append pull request number and short sha to dynamically assign workflow name <github-21500-2c065a>
             - src:
-                dependencyName: test-dep
+                dependencyName: pr-event
+                dataTemplate: "{{ .Input.body.pull_request.number }}-{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
+              dest: metadata.name
+              operation: append
+      retryStrategy:
+        steps: 3
+    - template:
+        name: github-docker-build
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: github-docker-build-
+              spec:
+                entrypoint: build-image
+                arguments:
+                  parameters:
+                    - name: repo-url
+                    - name: revision
+                    - name: image-base
+                      value: ghcr.io/containerly/openapi-ruby-on-rails
+                    - name: short-tag
+                    - name: pr-tag
+                    - name: test-command
+                      value: bundle exec rake test
+                    - name: dockerfile
+                      value: Dockerfile
+                volumeClaimTemplates:
+                  - metadata:
+                      name: workspace
+                    spec:
+                      accessModes:
+                        - ReadWriteOnce
+                      resources:
+                        requests:
+                          storage: 5Gi
+                templates:
+                  - name: build-image
+                    steps:
+                      - - name: clone
+                          template: git-clone
+                        - name: tests
+                          template: run-tests
+                        - name: build
+                          template: buildkit-build
+                  - name: git-clone
+                    inputs:
+                      parameters:
+                        - name: repo-url
+                        - name: revision
+                    container:
+                      image: alpine/git:2.44.0
+                      command:
+                        - sh
+                        - -c
+                      args:
+                        - |
+                          set -eo pipefail
+                          git clone --depth 1 "{{inputs.parameters.repo-url}}" /workspace && \
+                          cd /workspace && \
+                          git fetch origin "{{inputs.parameters.revision}}" && \
+                          git checkout "{{inputs.parameters.revision}}"
+                      resources:
+                        requests:
+                          cpu: 250m
+                          memory: 256Mi
+                      volumeMounts:
+                        - name: workspace
+                          mountPath: /workspace
+                  - name: run-tests
+                    inputs:
+                      parameters:
+                        - name: test-command
+                    container:
+                      image: ghcr.io/containerly/openapi-ruby-on-rails-test:latest
+                      command:
+                        - sh
+                        - -c
+                      args:
+                        - |
+                          set -eo pipefail
+                          cd /workspace
+                          {{inputs.parameters.test-command}}
+                      resources:
+                        requests:
+                          cpu: 500m
+                          memory: 512Mi
+                      volumeMounts:
+                        - name: workspace
+                          mountPath: /workspace
+                  - name: buildkit-build
+                    inputs:
+                      parameters:
+                        - name: image-base
+                        - name: short-tag
+                        - name: pr-tag
+                        - name: dockerfile
+                    container:
+                      image: moby/buildkit:buildx-stable-1
+                      command:
+                        - buildctl-daemonless.sh
+                        - build
+                        - --frontend
+                        - dockerfile.v0
+                        - --local
+                        - context=/workspace
+                        - --local
+                        - dockerfile=/workspace
+                        - --opt
+                        - filename={{inputs.parameters.dockerfile}}
+                        - --output
+                        - type=image,name={{inputs.parameters.image-base}}:{{inputs.parameters.short-tag}},push=true
+                        - --output
+                        - type=image,name={{inputs.parameters.image-base}}:{{inputs.parameters.pr-tag}},push=true
+                      env:
+                        - name: DOCKER_CONFIG
+                          value: /root/.docker
+                      resources:
+                        requests:
+                          cpu: 500m
+                          memory: 512Mi
+                      volumeMounts:
+                        - name: workspace
+                          mountPath: /workspace
+                        - name: docker-config
+                          mountPath: /root/.docker
+                          readOnly: true
+                volumes:
+                  - name: docker-config
+                    secret:
+                      secretName: docker-registry-config
+          parameters:
+            - src:
+                dependencyName: pr-event
+                dataKey: body.repository.clone_url
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.head.sha
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: "{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
+              dest: spec.arguments.parameters.3.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: "pr-{{ .Input.body.pull_request.number }}"
+              dest: spec.arguments.parameters.4.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: "{{ default 'bundle exec rake test' .Input.body.pull_request.head.repo.testCommand }}"
+              dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: "{{ if .Input.body.pull_request.head.repo }}{{ default \"Dockerfile\" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}"
+              dest: spec.arguments.parameters.6.value
+            - src:
+                dependencyName: pr-event
                 dataTemplate: "{{ .Input.body.pull_request.number }}-{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
               dest: metadata.name
               operation: append
