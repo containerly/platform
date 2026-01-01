@@ -207,7 +207,7 @@ spec:
           parameters:
             - src:
                 dependencyName: pr-event
-                dataKey: body.repository.clone_url
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.clone_url }}{{ else }}{{ .Input.body.repository.clone_url }}{{ end }}'
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: pr-event
@@ -229,10 +229,5 @@ spec:
                 dependencyName: pr-event
                 dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
               dest: spec.arguments.parameters.6.value
-            - src:
-                dependencyName: pr-event
-                dataTemplate: "{{ .Input.body.pull_request.number }}-{{ .Input.body.pull_request.head.sha | substr 0 7 }}"
-              dest: metadata.name
-              operation: append
       retryStrategy:
         steps: 3
