@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: argo-events
   namespace: argocd
-  finalizers:
-    - argocd.argoproj.io/resources-finalizer
 spec:
   destination:
     namespace: workflow-playground

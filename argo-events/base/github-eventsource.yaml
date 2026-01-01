@@ -36,8 +36,7 @@ spec:
         method: POST
         url: https://argo-events.internal.example.com/push
       events:
-        - push
-        - pull_request
+        - *
       apiToken:
         name: github-access
         key: token
