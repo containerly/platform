@@ -34,9 +34,9 @@ spec:
         endpoint: /push
         port: "12000"
         method: POST
-        url: https://argo-events.internal.example.com/push
+        url: https://68f7ba8b4541.ngrok-free.app/push
       events:
-        - *
+        - "*"
       apiToken:
         name: github-access
         key: token
