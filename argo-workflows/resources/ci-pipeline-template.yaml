@@ -349,7 +349,7 @@ spec:
           - name: test_command
       container:
         image: "{{inputs.parameters.image_ref}}"
-        workingDir: /usr/src/myapp
+        workingDir: /workspace
         command:
           - sh
           - -c
@@ -395,6 +395,9 @@ spec:
             value: test
           - name: RACK_ENV
             value: test
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
         resources:
           requests:
             memory: 256Mi
