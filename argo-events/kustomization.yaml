@@ -10,6 +10,7 @@ resources:
   - base/operate-wf-rbac.yaml
   - base/calendar-eventsource.yaml
   - base/github-eventsource.yaml
+  - base/github-sensor.yaml
   - base/workflow-sensor.yaml
   - base/log-sensor.yaml
 
