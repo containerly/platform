@@ -366,6 +366,7 @@ spec:
             echo "Bundle version: $(bundle --version)"
 
             bundle check || bundle install --jobs=4 --retry=3
+            bundle check --with test || bundle install --jobs=4 --retry=3 --with test
 
             echo "Executing: {{inputs.parameters.test_command}}"
             {{inputs.parameters.test_command}}
