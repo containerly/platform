@@ -1,0 +1,213 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-terraform
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: pr-event
+      eventSourceName: github
+      eventName: internal-repo
+      filters:
+        data:
+          - path: headers.X-Github-Event
+            type: string
+            value:
+              - pull_request
+          - path: body.action
+            type: string
+            value:
+              - opened
+              - edited
+              - reopened
+              - synchronize
+          - path: body.pull_request.state
+            type: string
+            value:
+              - open
+          - path: body.pull_request.base.ref
+            type: string
+            value:
+              - main
+    - name: push-event
+      eventSourceName: github
+      eventName: internal-repo
+      filters:
+        data:
+          - path: headers.X-Github-Event
+            type: string
+            value:
+              - push
+          - path: body.ref
+            type: string
+            value:
+              - refs/heads/main
+  triggers:
+    - template:
+        name: terraform-pr-plan
+        conditions: "pr-event"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: terraform-pr-plan-
+                namespace: workflow-playground
+              spec:
+                serviceAccountName: operate-workflow-sa
+                workflowTemplateRef:
+                  name: terraform
+                arguments:
+                  parameters:
+                    - name: repo_url
+                    - name: repo_owner
+                    - name: repo_name
+                    - name: branch
+                    - name: terraform_version
+                      value: "1.7.0"
+                    - name: terraform_dir
+                      value: "."
+                    - name: terraform_operation
+                      value: "plan"
+                    - name: terraform_backend_config
+                      value: ""
+                    - name: terraform_vars
+                      value: ""
+                    - name: auto_approve
+                      value: "false"
+                    - name: github_username
+                    - name: pr_number
+                    - name: commit_sha
+                    - name: head_repo_owner
+                    - name: head_repo_name
+          parameters:
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.clone_url }}{{ else }}{{ .Input.body.repository.clone_url }}{{ end }}'
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ .Input.body.repository.owner.login }}'
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ .Input.body.repository.name }}'
+              dest: spec.arguments.parameters.2.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.head.ref
+              dest: spec.arguments.parameters.3.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ default "1.7.0" .Input.body.pull_request.head.repo.terraformVersion }}'
+              dest: spec.arguments.parameters.4.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ default "." .Input.body.pull_request.head.repo.terraformDir }}'
+              dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ default "containerly" .Input.body.repository.owner.login }}'
+              dest: spec.arguments.parameters.10.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.number
+              dest: spec.arguments.parameters.11.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.head.sha
+              dest: spec.arguments.parameters.12.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.owner.login }}{{ else }}{{ .Input.body.repository.owner.login }}{{ end }}'
+              dest: spec.arguments.parameters.13.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.name }}{{ else }}{{ .Input.body.repository.name }}{{ end }}'
+              dest: spec.arguments.parameters.14.value
+      retryStrategy:
+        steps: 3
+    - template:
+        name: terraform-apply
+        conditions: "push-event"
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: terraform-apply-
+                namespace: workflow-playground
+              spec:
+                serviceAccountName: operate-workflow-sa
+                workflowTemplateRef:
+                  name: terraform
+                arguments:
+                  parameters:
+                    - name: repo_url
+                    - name: repo_owner
+                    - name: repo_name
+                    - name: branch
+                      value: "main"
+                    - name: terraform_version
+                      value: "1.7.0"
+                    - name: terraform_dir
+                      value: "."
+                    - name: terraform_operation
+                      value: "apply"
+                    - name: terraform_backend_config
+                      value: ""
+                    - name: terraform_vars
+                      value: ""
+                    - name: auto_approve
+                      value: "true"
+                    - name: github_username
+                    - name: pr_number
+                      value: ""
+                    - name: commit_sha
+                    - name: head_repo_owner
+                    - name: head_repo_name
+          parameters:
+            - src:
+                dependencyName: push-event
+                dataKey: body.repository.clone_url
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ .Input.body.repository.owner.login }}'
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ .Input.body.repository.name }}'
+              dest: spec.arguments.parameters.2.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ default "1.7.0" .Input.body.repository.terraformVersion }}'
+              dest: spec.arguments.parameters.4.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ default "." .Input.body.repository.terraformDir }}'
+              dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ default "containerly" .Input.body.repository.owner.login }}'
+              dest: spec.arguments.parameters.10.value
+            - src:
+                dependencyName: push-event
+                dataKey: body.head_commit.id
+              dest: spec.arguments.parameters.12.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ .Input.body.repository.owner.login }}'
+              dest: spec.arguments.parameters.13.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: '{{ .Input.body.repository.name }}'
+              dest: spec.arguments.parameters.14.value
+      retryStrategy:
+        steps: 3

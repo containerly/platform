@@ -11,6 +11,7 @@ resources:
   - base/calendar-eventsource.yaml
   - base/github-eventsource.yaml
   - base/github-sensor.yaml
+  - base/terraform-sensor.yaml
   - base/workflow-sensor.yaml
   - base/log-sensor.yaml
 
