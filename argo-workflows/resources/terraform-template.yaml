@@ -1,0 +1,473 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: terraform
+  namespace: workflow-playground
+spec:
+  onExit: notify-github
+  imagePullSecrets:
+    - name: docker-registry-config
+  arguments:
+    parameters:
+      - name: repo_url
+        value: ""
+      - name: repo_owner
+        value: ""
+      - name: repo_name
+        value: ""
+      - name: branch
+        value: "main"
+      - name: terraform_version
+        value: "1.7.0"
+      - name: terraform_dir
+        value: "."
+      - name: terraform_operation
+        value: "plan"
+      - name: terraform_backend_config
+        value: ""
+      - name: terraform_vars
+        value: ""
+      - name: auto_approve
+        value: "false"
+      - name: github_username
+        value: ""
+      - name: pr_number
+        value: ""
+      - name: commit_sha
+        value: ""
+      - name: head_repo_owner
+        value: ""
+      - name: head_repo_name
+        value: ""
+  entrypoint: main
+  activeDeadlineSeconds: 3600
+  ttlStrategy:
+    secondsAfterCompletion: 7200
+    secondsAfterSuccess: 3600
+    secondsAfterFailure: 14400
+  volumeClaimTemplates:
+    - metadata:
+        name: workspace
+        generateName: terraform-workspace-
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+  volumes:
+    - name: github-token
+      secret:
+        secretName: github-access
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: verify-token
+            template: verify-github-token
+          - name: clone
+            template: git-clone
+            dependencies:
+              - verify-token
+            arguments:
+              parameters:
+                - name: repo_url
+                  value: "{{workflow.parameters.repo_url}}"
+                - name: branch
+                  value: "{{workflow.parameters.branch}}"
+          - name: terraform-init
+            template: terraform-init
+            dependencies:
+              - clone
+            arguments:
+              parameters:
+                - name: terraform_version
+                  value: "{{workflow.parameters.terraform_version}}"
+                - name: terraform_dir
+                  value: "{{workflow.parameters.terraform_dir}}"
+                - name: terraform_backend_config
+                  value: "{{workflow.parameters.terraform_backend_config}}"
+          - name: terraform-validate
+            template: terraform-validate
+            dependencies:
+              - terraform-init
+            arguments:
+              parameters:
+                - name: terraform_version
+                  value: "{{workflow.parameters.terraform_version}}"
+                - name: terraform_dir
+                  value: "{{workflow.parameters.terraform_dir}}"
+          - name: terraform-fmt-check
+            template: terraform-fmt-check
+            dependencies:
+              - terraform-init
+            arguments:
+              parameters:
+                - name: terraform_version
+                  value: "{{workflow.parameters.terraform_version}}"
+                - name: terraform_dir
+                  value: "{{workflow.parameters.terraform_dir}}"
+          - name: terraform-operation
+            template: terraform-execute
+            dependencies:
+              - terraform-validate
+              - terraform-fmt-check
+            arguments:
+              parameters:
+                - name: terraform_version
+                  value: "{{workflow.parameters.terraform_version}}"
+                - name: terraform_dir
+                  value: "{{workflow.parameters.terraform_dir}}"
+                - name: terraform_operation
+                  value: "{{workflow.parameters.terraform_operation}}"
+                - name: terraform_vars
+                  value: "{{workflow.parameters.terraform_vars}}"
+                - name: auto_approve
+                  value: "{{workflow.parameters.auto_approve}}"
+    - name: verify-github-token
+      container:
+        image: curlimages/curl:8.4.0
+        command:
+          - /bin/sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Verifying GitHub Token ===="
+
+            if [ ! -f /github-token/token ]; then
+              echo "ERROR: GitHub token file not found!"
+              exit 1
+            fi
+
+            TOKEN=$(cat /github-token/token)
+            echo "Token length: ${#TOKEN} characters"
+
+            if [ ${#TOKEN} -lt 30 ]; then
+              echo "ERROR: GitHub token seems too short."
+              exit 1
+            fi
+
+            RESPONSE=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/user)
+
+            if [ "$RESPONSE" != "200" ]; then
+              echo "ERROR: GitHub API returned status $RESPONSE"
+              cat /tmp/response.json || true
+              exit 1
+            fi
+
+            echo "GitHub token verification completed ✅"
+        volumeMounts:
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 50m
+          limits:
+            memory: 64Mi
+            cpu: 100m
+    - name: git-clone
+      inputs:
+        parameters:
+          - name: repo_url
+          - name: branch
+      container:
+        image: alpine/git:v2.52.0
+        workingDir: /workspace
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Cloning Repository ===="
+
+            TOKEN=$(cat /github-token/token)
+            git config --global credential.helper store
+            printf 'https://x-access-token:%s@github.com\n' "$TOKEN" > /root/.git-credentials
+            chmod 600 /root/.git-credentials
+
+            git clone \
+              --depth 1 \
+              --branch "{{inputs.parameters.branch}}" \
+              --single-branch \
+              "{{inputs.parameters.repo_url}}" \
+              .
+
+            echo "Repository cloned successfully"
+            echo "Git commit: $(git rev-parse HEAD)"
+            echo "Files in workspace:"
+            ls -la
+
+            chmod -R 755 .
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 100m
+          limits:
+            memory: 128Mi
+            cpu: 200m
+    - name: terraform-init
+      inputs:
+        parameters:
+          - name: terraform_version
+          - name: terraform_dir
+          - name: terraform_backend_config
+      container:
+        image: hashicorp/terraform:{{inputs.parameters.terraform_version}}
+        workingDir: /workspace/{{inputs.parameters.terraform_dir}}
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Terraform Init ===="
+
+            terraform version
+
+            INIT_ARGS=""
+            if [ -n "{{inputs.parameters.terraform_backend_config}}" ]; then
+              echo "{{inputs.parameters.terraform_backend_config}}" | while IFS= read -r line; do
+                [ -z "$line" ] && continue
+                INIT_ARGS="$INIT_ARGS -backend-config=$line"
+              done
+            fi
+
+            terraform init -input=false $INIT_ARGS
+
+            echo "Terraform initialized successfully ✅"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+            cpu: 500m
+    - name: terraform-validate
+      inputs:
+        parameters:
+          - name: terraform_version
+          - name: terraform_dir
+      container:
+        image: hashicorp/terraform:{{inputs.parameters.terraform_version}}
+        workingDir: /workspace/{{inputs.parameters.terraform_dir}}
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Terraform Validate ===="
+
+            terraform validate
+
+            echo "Terraform validation successful ✅"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+            cpu: 200m
+    - name: terraform-fmt-check
+      inputs:
+        parameters:
+          - name: terraform_version
+          - name: terraform_dir
+      container:
+        image: hashicorp/terraform:{{inputs.parameters.terraform_version}}
+        workingDir: /workspace/{{inputs.parameters.terraform_dir}}
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Terraform Format Check ===="
+
+            if ! terraform fmt -check -recursive -diff; then
+              echo "WARNING: Terraform files are not properly formatted"
+              echo "Run 'terraform fmt -recursive' to fix formatting"
+            else
+              echo "Terraform format check passed ✅"
+            fi
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 50m
+          limits:
+            memory: 128Mi
+            cpu: 100m
+    - name: terraform-execute
+      inputs:
+        parameters:
+          - name: terraform_version
+          - name: terraform_dir
+          - name: terraform_operation
+          - name: terraform_vars
+          - name: auto_approve
+      container:
+        image: hashicorp/terraform:{{inputs.parameters.terraform_version}}
+        workingDir: /workspace/{{inputs.parameters.terraform_dir}}
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            echo "==== Terraform {{inputs.parameters.terraform_operation}} ===="
+
+            OPERATION="{{inputs.parameters.terraform_operation}}"
+            VAR_ARGS=""
+
+            if [ -n "{{inputs.parameters.terraform_vars}}" ]; then
+              echo "{{inputs.parameters.terraform_vars}}" | while IFS= read -r line; do
+                [ -z "$line" ] && continue
+                VAR_ARGS="$VAR_ARGS -var=$line"
+              done
+            fi
+
+            case "$OPERATION" in
+              plan)
+                terraform plan -input=false $VAR_ARGS -out=/tmp/tfplan
+                echo "Terraform plan saved to /tmp/tfplan"
+                echo "Terraform plan completed ✅"
+                ;;
+              apply)
+                AUTO_APPROVE="{{inputs.parameters.auto_approve}}"
+                if [ "$AUTO_APPROVE" = "true" ]; then
+                  terraform apply -input=false -auto-approve $VAR_ARGS
+                else
+                  echo "ERROR: Auto-approve is false. Apply operation requires auto-approve=true"
+                  echo "For safety, manual approval is not supported in automated workflows"
+                  exit 1
+                fi
+                echo "Terraform apply completed ✅"
+                ;;
+              destroy)
+                AUTO_APPROVE="{{inputs.parameters.auto_approve}}"
+                if [ "$AUTO_APPROVE" = "true" ]; then
+                  terraform destroy -input=false -auto-approve $VAR_ARGS
+                else
+                  echo "ERROR: Auto-approve is false. Destroy operation requires auto-approve=true"
+                  exit 1
+                fi
+                echo "Terraform destroy completed ✅"
+                ;;
+              output)
+                terraform output -json
+                echo "Terraform output retrieved ✅"
+                ;;
+              *)
+                echo "ERROR: Unknown terraform operation: $OPERATION"
+                echo "Supported operations: plan, apply, destroy, output"
+                exit 1
+                ;;
+            esac
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: "1"
+    - name: notify-github
+      container:
+        image: curlimages/curl:8.4.0
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            STATUS="{{workflow.status}}"
+            case "$STATUS" in
+              Succeeded) STATE=success ;;
+              Skipped)   STATE=neutral ;;
+              *)         STATE=failure ;;
+            esac
+
+            TOKEN=$(cat /github-token/token)
+            TARGET_URL="http://localhost:2746/workflows/workflow-playground/{{workflow.name}}"
+
+            post_status() {
+              local owner="$1"
+              local name="$2"
+              if [ -z "$owner" ] || [ -z "$name" ]; then
+                echo "Skipping status post because owner or name is empty"
+                return 1
+              fi
+
+              local response http_code
+              response=$(mktemp)
+              http_code=$(curl -sS -w "%{http_code}" -o "$response" \
+                -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$owner/$name/statuses/{{workflow.parameters.commit_sha}}" \
+                -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/terraform",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS"
+            }
+            EOF
+              )
+
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "Posted GitHub status to $owner/$name (HTTP $http_code)"
+                rm -f "$response"
+                return 0
+              fi
+
+              echo "GitHub status update failed for $owner/$name (HTTP $http_code)" >&2
+              cat "$response" >&2
+              rm -f "$response"
+              return 1
+            }
+
+            post_status "{{workflow.parameters.repo_owner}}" "{{workflow.parameters.repo_name}}" || \
+              post_status "{{workflow.parameters.head_repo_owner}}" "{{workflow.parameters.head_repo_name}}"
+
+            curl -sS -X POST \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/{{workflow.parameters.repo_owner}}/{{workflow.parameters.repo_name}}/statuses/{{workflow.parameters.commit_sha}}" \
+              -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/terraform",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS",
+              "sha": "{{workflow.parameters.commit_sha}}"
+            }
+            EOF
+        volumeMounts:
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true
