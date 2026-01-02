@@ -162,5 +162,13 @@ spec:
                 dependencyName: pr-event
                 dataKey: body.pull_request.head.sha
               dest: spec.arguments.parameters.11.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.owner.login }}{{ else }}{{ .Input.body.repository.owner.login }}{{ end }}'
+              dest: spec.arguments.parameters.12.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.name }}{{ else }}{{ .Input.body.repository.name }}{{ end }}'
+              dest: spec.arguments.parameters.13.value
       retryStrategy:
         steps: 3

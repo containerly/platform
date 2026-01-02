@@ -33,6 +33,10 @@ spec:
         value: ""
       - name: commit_sha
         value: ""
+      - name: head_repo_owner
+        value: ""
+      - name: head_repo_name
+        value: ""
   entrypoint: main
   activeDeadlineSeconds: 1800
   ttlStrategy:
@@ -479,6 +483,46 @@ spec:
 
             TOKEN=$(cat /github-token/token)
             TARGET_URL="http://localhost:2746/workflows/workflow-playground/{{workflow.name}}"
+
+            post_status() {
+              local owner="$1"
+              local name="$2"
+              if [ -z "$owner" ] || [ -z "$name" ]; then
+                echo "Skipping status post because owner or name is empty"
+                return 1
+              fi
+
+              local response http_code
+              response=$(mktemp)
+              http_code=$(curl -sS -w "%{http_code}" -o "$response" \
+                -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$owner/$name/statuses/{{workflow.parameters.commit_sha}}" \
+                -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/ci-pipeline",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS"
+            }
+            EOF
+              )
+
+              if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+                echo "Posted GitHub status to $owner/$name (HTTP $http_code)"
+                rm -f "$response"
+                return 0
+              fi
+
+              echo "GitHub status update failed for $owner/$name (HTTP $http_code)" >&2
+              cat "$response" >&2
+              rm -f "$response"
+              return 1
+            }
+
+            post_status "{{workflow.parameters.repo_owner}}" "{{workflow.parameters.repo_name}}" || \
+              post_status "{{workflow.parameters.head_repo_owner}}" "{{workflow.parameters.head_repo_name}}"
 
             curl -sS -X POST \
               -H "Authorization: Bearer $TOKEN" \
