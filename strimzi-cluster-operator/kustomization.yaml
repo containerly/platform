@@ -1,6 +1,7 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: strimzi-system
 resources:
   - https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.49.1/strimzi-cluster-operator-0.49.1.yaml
   - resources/kafka-cluster.yaml
@@ -8,6 +9,3 @@ resources:
   - resources/kafka-connect.yaml
   - resources/kafka-topic-argo-logs.yaml
   - resources/kafka-connector-argo-logs.yaml
-  - resources/rbac-lease-access.yaml
-  - resources/rbac-operator-watch.yaml
-  - resources/rbac-operator-ns.yaml
