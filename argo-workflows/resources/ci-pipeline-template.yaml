@@ -4,11 +4,16 @@ metadata:
   name: ci-pipeline
   namespace: workflow-playground
 spec:
+  onExit: notify-github
   imagePullSecrets:
     - name: docker-registry-config
   arguments:
     parameters:
       - name: repo_url
+        value: ""
+      - name: repo_owner
+        value: ""
+      - name: repo_name
         value: ""
       - name: branch
         value: ""
@@ -23,6 +28,10 @@ spec:
       - name: test_command
         value: "bundle exec rake test"
       - name: github_username
+        value: ""
+      - name: pr_number
+        value: ""
+      - name: commit_sha
         value: ""
   entrypoint: main
   activeDeadlineSeconds: 1800
@@ -452,3 +461,39 @@ spec:
           limits:
             memory: 64Mi
             cpu: 100m
+    - name: notify-github
+      container:
+        image: curlimages/curl:8.4.0
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            STATUS="{{workflow.status}}"
+            case "$STATUS" in
+              Succeeded) STATE=success ;;
+              Skipped)   STATE=neutral ;;
+              *)         STATE=failure ;;
+            esac
+
+            TOKEN=$(cat /github-token/token)
+            TARGET_URL="http://localhost:2746/workflows/workflow-playground/{{workflow.name}}"
+
+            curl -sS -X POST \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/{{workflow.parameters.repo_owner}}/{{workflow.parameters.repo_name}}/statuses/{{workflow.parameters.commit_sha}}" \
+              -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/ci-pipeline",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS",
+              "sha": "{{workflow.parameters.commit_sha}}"
+            }
+            EOF
+        volumeMounts:
+          - name: github-token
+            mountPath: /github-token
+            readOnly: true

@@ -110,6 +110,8 @@ spec:
                   parameters:
                     - name: repo_url
                     - name: branch
+                    - name: repo_owner
+                    - name: repo_name
                     - name: dockerfile
                       value: "Dockerfile"
                     - name: context_path
@@ -121,6 +123,8 @@ spec:
                       value: bundle exec rake test
                     - name: github_username
                       value: containerly
+                    - name: pr_number
+                    - name: commit_sha
           parameters:
             - src:
                 dependencyName: pr-event
@@ -132,15 +136,31 @@ spec:
               dest: spec.arguments.parameters.1.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.owner.login }}{{ else }}{{ .Input.body.repository.owner.login }}{{ end }}'
               dest: spec.arguments.parameters.2.value
             - src:
                 dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ .Input.body.pull_request.head.repo.name }}{{ else }}{{ .Input.body.repository.name }}{{ end }}'
+              dest: spec.arguments.parameters.3.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "Dockerfile" .Input.body.pull_request.head.repo.dockerfilePath }}{{ else }}Dockerfile{{ end }}'
+              dest: spec.arguments.parameters.4.value
+            - src:
+                dependencyName: pr-event
                 dataTemplate: 'pr-{{ .Input.body.pull_request.number }}-{{ .Input.body.pull_request.head.sha | substr 0 7 }}'
-              dest: spec.arguments.parameters.5.value
+              dest: spec.arguments.parameters.7.value
             - src:
                 dependencyName: pr-event
                 dataTemplate: '{{ default "bundle exec rake test" .Input.body.pull_request.head.repo.testCommand }}'
-              dest: spec.arguments.parameters.6.value
+              dest: spec.arguments.parameters.8.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.number
+              dest: spec.arguments.parameters.10.value
+            - src:
+                dependencyName: pr-event
+                dataKey: body.pull_request.head.sha
+              dest: spec.arguments.parameters.11.value
       retryStrategy:
         steps: 3
