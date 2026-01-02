@@ -10,4 +10,4 @@ spec:
     topics: argo-logs
     timestampKey: "@timestamp"
     rdkafka:
-      log.connection.close: false
+      log.connection.close: "false"

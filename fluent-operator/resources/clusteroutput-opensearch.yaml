@@ -5,7 +5,7 @@ metadata:
   name: argo-logs-opensearch
 spec:
   match: kube.*
-  opensearch:
+  es:
     host: opensearch-cluster-client.logging.svc
     port: 9200
     httpUser:
@@ -19,11 +19,11 @@ spec:
           name: opensearch-admin-credentials
           key: password
     index: argo-logs
-    generateId: true
+    generateID: true
     logstashFormat: true
     logstashPrefix: argo-logs
     logstashDateFormat: "%Y.%m.%d"
     timeKey: "@timestamp"
-    suppressTypeName: true
+    suppressTypeName: "true"
     tls:
       verify: false
