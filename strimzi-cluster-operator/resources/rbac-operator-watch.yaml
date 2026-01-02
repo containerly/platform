@@ -1,0 +1,22 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: strimzi-operator-watch-cluster
+rules:
+  - apiGroups: ["kafka.strimzi.io"]
+    resources: ["kafkas", "kafkas/status", "kafkas/finalizers", "kafkanodepools", "kafkanodepools/status", "kafkanodepools/finalizers", "kafkaconnects", "kafkaconnects/status", "kafkaconnects/finalizers", "kafkaconnectors", "kafkaconnectors/status", "kafkaconnectors/finalizers", "kafkatopics", "kafkatopics/status", "kafkatopics/finalizers", "kafkausers", "kafkausers/status", "kafkausers/finalizers"]
+    verbs: ["get", "list", "watch", "update", "patch", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: strimzi-operator-watch-cluster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: strimzi-operator-watch-cluster
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: kube-system
