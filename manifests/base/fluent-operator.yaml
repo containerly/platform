@@ -3,9 +3,6 @@ kind: Application
 metadata:
   name: fluent-operator
   namespace: argocd
-  ### Just as a prevention, we do not want Argo CD to destruct it's dependencies
-  # finalizers:
-  #   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: fluent-operator
