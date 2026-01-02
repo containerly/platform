@@ -8,6 +8,6 @@ spec:
   kafka:
     brokers: my-cluster-kafka-bootstrap:9092
     topics: argo-logs
-    timestampKey: @timestamp
+    timestampKey: "@timestamp"
     rdkafka:
       log.connection.close: false

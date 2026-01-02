@@ -1,5 +1,5 @@
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaConnect
 metadata:
   name: opensearch-connect
@@ -9,11 +9,11 @@ spec:
   version: 4.1.1
   replicas: 1
   bootstrapServers: my-cluster-kafka-bootstrap:9092
+  groupId: opensearch-connect
+  configStorageTopic: opensearch-connect-configs
+  offsetStorageTopic: opensearch-connect-offsets
+  statusStorageTopic: opensearch-connect-status
   config:
-    group.id: opensearch-connect
-    offset.storage.topic: opensearch-connect-offsets
-    config.storage.topic: opensearch-connect-configs
-    status.storage.topic: opensearch-connect-status
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter.schemas.enable: false

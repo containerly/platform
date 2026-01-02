@@ -1,5 +1,5 @@
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: my-cluster
@@ -7,8 +7,6 @@ spec:
   kafka:
     version: 4.1.1
     metadataVersion: 4.1-IV1
-    nodePools:
-      - dual-role
     listeners:
       - name: plain
         port: 9092
