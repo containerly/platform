@@ -18,6 +18,9 @@ rules:
       - kafkaconnectors
       - kafkaconnectors/status
       - kafkaconnectors/finalizers
+      - kafkamirrormaker2s
+      - kafkamirrormaker2s/status
+      - kafkamirrormaker2s/finalizers
       - kafkatopics
       - kafkatopics/status
       - kafkatopics/finalizers
@@ -27,6 +30,12 @@ rules:
       - kafkabridges
       - kafkabridges/status
       - kafkabridges/finalizers
+    verbs: ["get", "list", "watch", "update", "patch", "create", "delete"]
+  - apiGroups: ["core.strimzi.io"]
+    resources:
+      - strimzipodsets
+      - strimzipodsets/status
+      - strimzipodsets/finalizers
     verbs: ["get", "list", "watch", "update", "patch", "create", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
