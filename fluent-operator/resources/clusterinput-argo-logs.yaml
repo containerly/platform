@@ -1,13 +1,21 @@
----
 apiVersion: fluentbit.fluent.io/v1alpha2
 kind: ClusterInput
 metadata:
   name: argo-logs
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+    fluentbit.fluent.io/mode: "k8s"
 spec:
   tail:
+    # Captures logs from:
+    # - Argo CD (argocd namespace)
+    # - Argo Workflows (argo namespace)
+    # - Argo Events (workflow-playground namespace)
+    path: /var/log/containers/*_argo_*.log,/var/log/containers/*_argocd_*.log,/var/log/containers/*_workflow-playground_*.log
+    pathKey: filename
     tag: kube.*
-    path: /var/log/containers/*.log
     parser: docker
-    memBufLimit: 10MB
+    refreshIntervalSeconds: 10
+    memBufLimit: 5MB
     skipLongLines: true
-    refreshInterval: 10
+    db: /fluent-bit/tail/argo-logs.db

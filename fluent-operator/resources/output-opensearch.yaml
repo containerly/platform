@@ -1,16 +1,19 @@
 ---
 apiVersion: fluentbit.fluent.io/v1alpha2
-kind: ClusterOutput
+kind: Output
 metadata:
   name: argo-logs-opensearch
+  namespace: fluent
   labels:
     fluentbit.fluent.io/enabled: "true"
-    fluentbit.fluent.io/mode: "k8s"
+    fluentbit.fluent.io/config: "argo-logs"
 spec:
-  match: kube.*
-  es:
-    host: opensearch-cluster-client.logging.svc
+  match: "kube.*"
+  openSearch:
+    host: opensearch-cluster-master.logging.svc
     port: 9200
+    index: argo-logs
+    type: _doc
     httpUser:
       valueFrom:
         secretKeyRef:
@@ -21,12 +24,5 @@ spec:
         secretKeyRef:
           name: opensearch-admin-credentials
           key: password
-    index: argo-logs
-    generateID: true
-    logstashFormat: true
-    logstashPrefix: argo-logs
-    logstashDateFormat: "%Y.%m.%d"
-    timeKey: "@timestamp"
-    suppressTypeName: "true"
     tls:
-      verify: false
+      verify: "Off"

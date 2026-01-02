@@ -3,13 +3,25 @@ apiVersion: fluentbit.fluent.io/v1alpha2
 kind: ClusterFilter
 metadata:
   name: argo-logs
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+    fluentbit.fluent.io/mode: "k8s"
 spec:
   match: kube.*
   filters:
-    - name: kubernetes
-      kubeTagPrefix: kube.var.log.containers.
-      namespace: ["argocd", "argo-events", "workflow-playground"]
-      mergeLog: true
-      keepLog: true
-      labels: true
-      annotations: false
+    - kubernetes:
+        kubeTagPrefix: kube.var.log.containers.
+        mergeLog: true
+        keepLog: true
+        k8sLoggingParser: true
+        k8sLoggingExclude: true
+        labels: true
+        annotations: true
+    - nest:
+        operation: lift
+        nestedUnder: kubernetes
+        addPrefix: k8s_
+    - modify:
+        rules:
+          - add: component argo
+          - add: index_name argo-logs

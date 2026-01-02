@@ -1,0 +1,14 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: Input
+metadata:
+  name: argo-logs-tail
+  namespace: fluent
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+    fluentbit.fluent.io/config: "argo-logs"
+spec:
+  tail:
+    path: /var/log/containers/*argo*.log
+    tag: kube.*
+    parser: docker

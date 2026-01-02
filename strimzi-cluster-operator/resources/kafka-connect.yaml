@@ -13,6 +13,7 @@ spec:
   configStorageTopic: opensearch-connect-configs
   offsetStorageTopic: opensearch-connect-offsets
   statusStorageTopic: opensearch-connect-status
+  image: ghcr.io/containerly/opensearch-kafka-connector:latest
   config:
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
@@ -22,8 +23,3 @@ spec:
     status.storage.replication.factor: 1
     topic.creation.default.replication.factor: 1
     topic.creation.default.partitions: 3
-  plugins:
-    - name: opensearch-connector
-      artifacts:
-        - type: zip
-          url: https://github.com/Aiven-Open/opensearch-connector-for-apache-kafka/releases/download/v3.2.0/opensearch-connector-for-apache-kafka-3.2.0.zip

@@ -1,6 +1,6 @@
 ---
 apiVersion: fluentbit.fluent.io/v1alpha2
-kind: Collector
+kind: FluentBit
 metadata:
   name: argo-logs
   namespace: fluent
@@ -10,4 +10,7 @@ spec:
   image: fluent/fluent-bit:3.2.2
   fluentBitConfigName: argo-logs
   tolerations:
-  - operator: Exists
+    - operator: Exists
+  positionDB:
+    hostPath:
+      path: /var/fluent-bit/tail

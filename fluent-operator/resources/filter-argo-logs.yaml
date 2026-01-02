@@ -1,0 +1,18 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: Filter
+metadata:
+  name: argo-logs-kubernetes
+  namespace: fluent
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+    fluentbit.fluent.io/config: "argo-logs"
+spec:
+  match: "kube.*"
+  filters:
+    - kubernetes:
+        kubeURL: https://kubernetes.default.svc:443
+        kubeCAFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        kubeTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        labels: "On"
+        annotations: "On"
