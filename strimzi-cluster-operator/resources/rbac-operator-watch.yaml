@@ -5,7 +5,28 @@ metadata:
   name: strimzi-operator-watch-cluster
 rules:
   - apiGroups: ["kafka.strimzi.io"]
-    resources: ["kafkas", "kafkas/status", "kafkas/finalizers", "kafkanodepools", "kafkanodepools/status", "kafkanodepools/finalizers", "kafkaconnects", "kafkaconnects/status", "kafkaconnects/finalizers", "kafkaconnectors", "kafkaconnectors/status", "kafkaconnectors/finalizers", "kafkatopics", "kafkatopics/status", "kafkatopics/finalizers", "kafkausers", "kafkausers/status", "kafkausers/finalizers"]
+    resources:
+      - kafkas
+      - kafkas/status
+      - kafkas/finalizers
+      - kafkanodepools
+      - kafkanodepools/status
+      - kafkanodepools/finalizers
+      - kafkaconnects
+      - kafkaconnects/status
+      - kafkaconnects/finalizers
+      - kafkaconnectors
+      - kafkaconnectors/status
+      - kafkaconnectors/finalizers
+      - kafkatopics
+      - kafkatopics/status
+      - kafkatopics/finalizers
+      - kafkausers
+      - kafkausers/status
+      - kafkausers/finalizers
+      - kafkabridges
+      - kafkabridges/status
+      - kafkabridges/finalizers
     verbs: ["get", "list", "watch", "update", "patch", "create", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
