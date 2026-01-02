@@ -8,7 +8,7 @@ resources:
 - base/argo-cd-certificate.yaml
 - base/rollouts-extension.yaml
 - base/sync-project.yaml
-- https://raw.githubusercontent.com/containerly/platform/main/manifests/install.yaml
+- https://raw.githubusercontent.com/containerly/platform/main/install.yaml
 
 components:
 - https://github.com/argoproj-labs/argocd-extensions/manifests

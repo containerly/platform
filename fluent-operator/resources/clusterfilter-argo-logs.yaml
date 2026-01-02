@@ -23,5 +23,7 @@ spec:
         addPrefix: k8s_
     - modify:
         rules:
-          - add: component argo
-          - add: index_name argo-logs
+        - add:
+          component: argo
+        - add:
+          index_name: argo-logs
