@@ -109,9 +109,9 @@ spec:
                 arguments:
                   parameters:
                     - name: repo_url
-                    - name: branch
                     - name: repo_owner
                     - name: repo_name
+                    - name: branch
                     - name: dockerfile
                       value: "Dockerfile"
                     - name: context_path
@@ -125,6 +125,8 @@ spec:
                       value: containerly
                     - name: pr_number
                     - name: commit_sha
+                    - name: head_repo_owner
+                    - name: head_repo_name
           parameters:
             - src:
                 dependencyName: pr-event
