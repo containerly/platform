@@ -50,3 +50,11 @@ spec:
         plugins.security.disabled: "true"
         plugins.security.ssl.transport.enabled: "false"
         plugins.security.ssl.http.enabled: "false"
+      probes:
+        readiness:
+          command:
+            - /bin/bash
+            - -c
+            - curl --silent --fail http://localhost:9200/_cluster/health || exit 1
+          initialDelaySeconds: 60
+          periodSeconds: 30
