@@ -19,6 +19,10 @@ spec:
   dashboards:
     enable: true
     version: 2.11.1
+    additionalConfig:
+      opensearch.hosts: '["http://opensearch-cluster:9200"]'
+      opensearch.ssl.verificationMode: "none"
+      server.ssl.enabled: "false"
     replicas: 1
     resources:
       requests:
