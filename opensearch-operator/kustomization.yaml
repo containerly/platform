@@ -10,3 +10,6 @@ helmCharts:
     valuesInline:
       serviceAccount:
         create: true
+
+resources:
+  - resources/opensearch-operator.yaml
