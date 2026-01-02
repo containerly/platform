@@ -8,3 +8,4 @@ resources:
   - resources/kafka-connect.yaml
   - resources/kafka-topic-argo-logs.yaml
   - resources/kafka-connector-argo-logs.yaml
+  - resources/rbac-lease-access.yaml
