@@ -1,0 +1,13 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: argo-logs
+spec:
+  match: kube.*
+  kafka:
+    brokers: my-cluster-kafka-bootstrap:9092
+    topics: argo-logs
+    timestampKey: @timestamp
+    rdkafka:
+      log.connection.close: false

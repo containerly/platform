@@ -3,3 +3,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - https://github.com/fluent/fluent-operator//manifests/setup?ref=v3.5.0
+  - resources/clusterinput-argo-logs.yaml
+  - resources/clusterfilter-argo-logs.yaml
+  - resources/clusteroutput-argo-logs.yaml
+  - resources/clusterfluentbitconfig-argo-logs.yaml
+  - resources/clusterfluentbit-argo-logs.yaml

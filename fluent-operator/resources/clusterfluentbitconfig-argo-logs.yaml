@@ -1,0 +1,15 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterFluentBitConfig
+metadata:
+  name: argo-logs
+spec:
+  service:
+    flush: 1
+    logLevel: info
+  inputs:
+    - name: argo-logs
+  filters:
+    - name: argo-logs
+  outputs:
+    - name: argo-logs

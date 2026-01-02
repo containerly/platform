@@ -1,0 +1,13 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterInput
+metadata:
+  name: argo-logs
+spec:
+  tail:
+    tag: kube.*
+    path: /var/log/containers/*.log
+    parser: docker
+    memBufLimit: 10MB
+    skipLongLines: true
+    refreshInterval: 10
