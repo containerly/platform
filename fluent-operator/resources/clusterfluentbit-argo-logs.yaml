@@ -1,9 +1,13 @@
 ---
 apiVersion: fluentbit.fluent.io/v1alpha2
-kind: ClusterFluentBit
+kind: Collector
 metadata:
   name: argo-logs
+  namespace: fluent
+  labels:
+    app.kubernetes.io/name: fluent-bit
 spec:
-  serviceAccount: fluent-bit
-  targetNamespace: fluent
+  image: fluent/fluent-bit:3.2.2
   fluentBitConfigName: argo-logs
+  tolerations:
+  - operator: Exists
