@@ -11,9 +11,9 @@ spec:
   bootstrapServers: my-cluster-kafka-bootstrap:9092
   config:
     group.id: opensearch-connect
-    offset.storage.topic: connect-offsets
-    config.storage.topic: connect-configs
-    status.storage.topic: connect-statuses
+    offset.storage.topic: opensearch-connect-offsets
+    config.storage.topic: opensearch-connect-configs
+    status.storage.topic: opensearch-connect-status
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter.schemas.enable: false

@@ -1,20 +1,31 @@
 ---
-apiVersion: kafka.strimzi.io/v1
-kind: KafkaNodePool
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
 metadata:
-  name: dual-role
-  labels:
-    strimzi.io/cluster: my-cluster
+  name: my-cluster
 spec:
-  replicas: 1
-  roles:
-    - controller
-    - broker
-  storage:
-    type: jbod
-    volumes:
-      - id: 0
-        type: persistent-claim
-        size: 100Gi
-        deleteClaim: false
-        kraftMetadata: shared
+  kafka:
+    version: 4.1.1
+    metadataVersion: 4.1-IV1
+    nodePools:
+      - dual-role
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+    config:
+      auto.create.topics.enable: false
+      default.replication.factor: 1
+      min.insync.replicas: 1
+      num.partitions: 6
+      offsets.topic.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      transaction.state.log.replication.factor: 1
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
