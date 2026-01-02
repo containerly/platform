@@ -12,6 +12,10 @@ spec:
     version: 2.11.1
     httpPort: 9200
     setVMMaxMapCount: true
+    additionalConfig:
+      plugins.security.disabled: "true"
+      plugins.security.ssl.transport.enabled: "false"
+      plugins.security.ssl.http.enabled: "false"
   dashboards:
     enable: true
     version: 2.11.1
@@ -23,14 +27,6 @@ spec:
       limits:
         memory: "512Mi"
         cpu: "200m"
-  bootstrap:
-    env:
-      - name: DISABLE_INSTALL_DEMO_CONFIG
-        value: "true"
-    additionalConfig:
-      plugins.security.disabled: "true"
-      plugins.security.ssl.transport.enabled: "false"
-      plugins.security.ssl.http.enabled: "false"
   nodePools:
     - component: masters
       replicas: 3
@@ -54,10 +50,3 @@ spec:
         plugins.security.disabled: "true"
         plugins.security.ssl.transport.enabled: "false"
         plugins.security.ssl.http.enabled: "false"
-  security:
-    disable: true
-    tls:
-      http:
-        enabled: false
-      transport:
-        enabled: false
