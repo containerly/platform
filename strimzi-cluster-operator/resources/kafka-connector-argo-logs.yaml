@@ -6,7 +6,7 @@ metadata:
   labels:
     strimzi.io/cluster: opensearch-connect
 spec:
-  class: com.amazon.opensearch.kafka.connect.OpensearchSinkConnector
+  class: io.aiven.kafka.connect.opensearch.OpensearchSinkConnector
   tasksMax: 1
   config:
     topics: argo-logs
@@ -16,14 +16,3 @@ spec:
     type.name: _doc
     key.ignore: true
     schema.ignore: true
-    behavior.on.malformed.documents: ignore
-    drop.invalid.message: true
-    write.method: bulk
-    batch.size: 2000
-    max.in.flight.requests: 5
-    flush.timeout.ms: 60000
-    linger.ms: 2000
-    index: argo-logs-%{+YYYY.MM.dd}
-    index.rotation.strategy: interval
-    index.rotation.interval.ms: 86400000
-    index.timezone: UTC

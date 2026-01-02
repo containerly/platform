@@ -1,0 +1,55 @@
+---
+# Simple OpenSearch cluster for log storage
+# Deploy this when you're ready to start storing logs in OpenSearch
+# kubectl apply -f opensearch-cluster.yaml
+apiVersion: opensearch.opster.io/v1
+kind: OpenSearchCluster
+metadata:
+  name: opensearch-cluster
+  namespace: logging
+spec:
+  general:
+    serviceName: opensearch-cluster
+    version: 2.16.0
+    httpPort: 9200
+  dashboards:
+    enable: true
+    version: 2.16.0
+    replicas: 1
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+  nodePools:
+    - component: masters
+      replicas: 1
+      diskSize: "5Gi"
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: "500m"
+        limits:
+          memory: "1Gi"
+          cpu: "500m"
+      roles:
+        - "cluster_manager"
+        - "data"
+  security:
+    config:
+      adminCredentialsSecret:
+        name: opensearch-admin-credentials
+---
+# Admin credentials for OpenSearch
+# Change these in production!
+apiVersion: v1
+kind: Secret
+metadata:
+  name: opensearch-admin-credentials
+  namespace: logging
+type: Opaque
+stringData:
+  username: admin
+  password: changeme

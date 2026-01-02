@@ -13,3 +13,4 @@ spec:
     - name: argo-logs
   outputs:
     - name: argo-logs
+    - name: argo-logs-opensearch

@@ -1,0 +1,67 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: strimzi-cluster-operator
+  namespace: strimzi-system
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: strimzi-cluster-operator-entity-operator-delegation
+  namespace: strimzi-system
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: strimzi-cluster-operator-leader-election
+  namespace: strimzi-system
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: strimzi-cluster-operator-watched
+  namespace: strimzi-system
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: strimzi-cluster-operator
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: strimzi-cluster-operator-kafka-broker-delegation
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: strimzi-cluster-operator-kafka-client-delegation
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-cluster-operator
+    namespace: strimzi-system
