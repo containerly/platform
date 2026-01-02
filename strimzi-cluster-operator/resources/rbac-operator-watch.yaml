@@ -15,6 +15,9 @@ rules:
       - kafkaconnects
       - kafkaconnects/status
       - kafkaconnects/finalizers
+      - kafkarebalances
+      - kafkarebalances/status
+      - kafkarebalances/finalizers
       - kafkaconnectors
       - kafkaconnectors/status
       - kafkaconnectors/finalizers
