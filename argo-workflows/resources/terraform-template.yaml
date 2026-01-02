@@ -237,15 +237,12 @@ spec:
 
             terraform version
 
-            INIT_ARGS=""
             if [ -n "{{inputs.parameters.terraform_backend_config}}" ]; then
-              echo "{{inputs.parameters.terraform_backend_config}}" | while IFS= read -r line; do
-                [ -z "$line" ] && continue
-                INIT_ARGS="$INIT_ARGS -backend-config=$line"
-              done
+              echo "{{inputs.parameters.terraform_backend_config}}" > /tmp/backend-config.txt
+              terraform init -input=false $(awk '{if (NF) print "-backend-config=" $0}' /tmp/backend-config.txt | tr '\n' ' ')
+            else
+              terraform init -input=false
             fi
-
-            terraform init -input=false $INIT_ARGS
 
             echo "Terraform initialized successfully ✅"
         volumeMounts:
@@ -339,13 +336,12 @@ spec:
             echo "==== Terraform {{inputs.parameters.terraform_operation}} ===="
 
             OPERATION="{{inputs.parameters.terraform_operation}}"
-            VAR_ARGS=""
 
             if [ -n "{{inputs.parameters.terraform_vars}}" ]; then
-              echo "{{inputs.parameters.terraform_vars}}" | while IFS= read -r line; do
-                [ -z "$line" ] && continue
-                VAR_ARGS="$VAR_ARGS -var=$line"
-              done
+              echo "{{inputs.parameters.terraform_vars}}" > /tmp/terraform-vars.txt
+              VAR_ARGS=$(awk '{if (NF) print "-var=" $0}' /tmp/terraform-vars.txt | tr '\n' ' ')
+            else
+              VAR_ARGS=""
             fi
 
             case "$OPERATION" in
@@ -453,20 +449,6 @@ spec:
 
             post_status "{{workflow.parameters.repo_owner}}" "{{workflow.parameters.repo_name}}" || \
               post_status "{{workflow.parameters.head_repo_owner}}" "{{workflow.parameters.head_repo_name}}"
-
-            curl -sS -X POST \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/{{workflow.parameters.repo_owner}}/{{workflow.parameters.repo_name}}/statuses/{{workflow.parameters.commit_sha}}" \
-              -d @- <<EOF
-            {
-              "state": "$STATE",
-              "context": "argo/terraform",
-              "target_url": "$TARGET_URL",
-              "description": "Workflow {{workflow.name}} finished with status $STATUS",
-              "sha": "{{workflow.parameters.commit_sha}}"
-            }
-            EOF
         volumeMounts:
           - name: github-token
             mountPath: /github-token
