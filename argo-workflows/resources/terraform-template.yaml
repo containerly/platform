@@ -337,11 +337,23 @@ spec:
 
             OPERATION="{{inputs.parameters.terraform_operation}}"
 
+            VAR_ARGS=""
             if [ -n "{{inputs.parameters.terraform_vars}}" ]; then
-              echo "{{inputs.parameters.terraform_vars}}" > /tmp/terraform-vars.txt
-              VAR_ARGS=$(awk '{if (NF) print "-var=" $0}' /tmp/terraform-vars.txt | tr '\n' ' ')
-            else
-              VAR_ARGS=""
+              printf '%s\n' "{{inputs.parameters.terraform_vars}}" > /tmp/terraform-vars.txt
+              while IFS= read -r line; do
+                [ -z "$line" ] && continue
+                case "$line" in
+                  -var=*|-var-file=*|-var|-var-file)
+                    VAR_ARGS="$VAR_ARGS $line"
+                    ;;
+                  -*)
+                    VAR_ARGS="$VAR_ARGS $line"
+                    ;;
+                  *)
+                    VAR_ARGS="$VAR_ARGS -var=$line"
+                    ;;
+                esac
+              done < /tmp/terraform-vars.txt
             fi
 
             case "$OPERATION" in

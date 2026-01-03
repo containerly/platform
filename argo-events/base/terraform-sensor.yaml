@@ -94,10 +94,6 @@ spec:
               dest: spec.arguments.parameters.4.value
             - src:
                 dependencyName: pr-event
-              dataTemplate: '.'
-              dest: spec.arguments.parameters.5.value
-            - src:
-                dependencyName: pr-event
                 dataTemplate: >-
                   {{- $ref := .Input.body.pull_request.head.ref -}}
                   {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
@@ -206,10 +202,6 @@ spec:
                 dependencyName: push-event
                 dataTemplate: '{{ default "1.7.0" .Input.body.repository.terraformVersion }}'
               dest: spec.arguments.parameters.4.value
-            - src:
-                dependencyName: push-event
-                dataTemplate: '.'
-              dest: spec.arguments.parameters.5.value
             - src:
                 dependencyName: push-event
                 dataTemplate: -var-file=envs/prod/prod.auto.tfvars
