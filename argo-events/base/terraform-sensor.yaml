@@ -97,6 +97,13 @@ spec:
                 dataTemplate: >-
                   {{- $ref := .Input.body.pull_request.head.ref -}}
                   {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
+                  envs/{{ $env }}
+              dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: >-
+                  {{- $ref := .Input.body.pull_request.head.ref -}}
+                  {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
                   -var-file=envs/{{ $env }}/{{ $env }}.auto.tfvars
               dest: spec.arguments.parameters.8.value
             - src:
@@ -202,6 +209,10 @@ spec:
                 dependencyName: push-event
                 dataTemplate: '{{ default "1.7.0" .Input.body.repository.terraformVersion }}'
               dest: spec.arguments.parameters.4.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: 'envs/prod'
+              dest: spec.arguments.parameters.5.value
             - src:
                 dependencyName: push-event
                 dataTemplate: -var-file=envs/prod/prod.auto.tfvars

@@ -341,6 +341,12 @@ spec:
             if [ -n "{{inputs.parameters.terraform_vars}}" ]; then
               echo "Terraform working directory: $(pwd)"
               echo "Workspace contents:" && ls -al
+              if [ -d "envs" ]; then
+                echo "envs directory tree (max depth 3):"
+                find envs -maxdepth 3 -type f -print
+              else
+                echo "envs directory not present"
+              fi
               printf '%s\n' "{{inputs.parameters.terraform_vars}}" > /tmp/terraform-vars.txt
               while IFS= read -r line; do
                 [ -z "$line" ] && continue
