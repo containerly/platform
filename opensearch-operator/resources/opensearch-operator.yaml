@@ -9133,7 +9133,6 @@ metadata:
     app.kubernetes.io/instance: opensearch-operator
     app.kubernetes.io/version: "2.8.0"
     app.kubernetes.io/managed-by: Helm
-    control-plane: controller-manager
 spec:
   ports:
   - port: 443
@@ -9141,7 +9140,8 @@ spec:
     protocol: TCP
     name: webhook
   selector:
-    control-plane: controller-manager
+    app.kubernetes.io/name: opensearch-operator
+    app.kubernetes.io/instance: opensearch-operator
 ---
 # Source: opensearch-operator/templates/service.yaml
 apiVersion: v1
