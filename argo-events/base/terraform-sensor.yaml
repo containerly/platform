@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: github-terraform
+  name: github-terraform-pr
   namespace: workflow-playground
 spec:
   template:
@@ -32,23 +32,9 @@ spec:
             type: string
             value:
               - main
-    - name: push-event
-      eventSourceName: github
-      eventName: internal-repo
-      filters:
-        data:
-          - path: headers.X-Github-Event
-            type: string
-            value:
-              - push
-          - path: body.ref
-            type: string
-            value:
-              - refs/heads/main
   triggers:
     - template:
         name: terraform-pr-plan
-        conditions: "pr-event"
         k8s:
           operation: create
           source:
@@ -132,9 +118,32 @@ spec:
               dest: spec.arguments.parameters.14.value
       retryStrategy:
         steps: 3
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-terraform-push
+  namespace: workflow-playground
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: push-event
+      eventSourceName: github
+      eventName: internal-repo
+      filters:
+        data:
+          - path: headers.X-Github-Event
+            type: string
+            value:
+              - push
+          - path: body.ref
+            type: string
+            value:
+              - refs/heads/main
+  triggers:
     - template:
         name: terraform-apply
-        conditions: "push-event"
         k8s:
           operation: create
           source:
