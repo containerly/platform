@@ -37,7 +37,7 @@ spec:
         # Note:
         # ngrok http http://localhost:12000
         # kubectl port-forward svc/github-eventsource-svc 12000:12000 -n workflow-playground
-        url: https://a18b7f976d7e.ngrok-free.app/push
+        url: https://unobjectivized-estelle-intergular.ngrok-free.dev/push
       events:
         - "*"
       apiToken:
