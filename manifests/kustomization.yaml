@@ -12,7 +12,6 @@ resources:
   - base/cert-manager.yaml
   - base/grafana-operator.yaml
   - base/prometheus-operator.yaml
-  - base/opensearch-operator.yaml
   - base/fluent-operator.yaml
   - base/strimzi-cluster-operator.yaml
   - base/sealed-secrets.yaml
