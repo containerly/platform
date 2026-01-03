@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: argo-workflows
   namespace: argocd
-  finalizers:
-    - argocd.argoproj.io/resources-finalizer
 spec:
   destination:
     namespace: argo
