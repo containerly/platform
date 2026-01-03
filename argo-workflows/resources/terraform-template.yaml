@@ -339,11 +339,25 @@ spec:
 
             VAR_ARGS=""
             if [ -n "{{inputs.parameters.terraform_vars}}" ]; then
+              echo "Terraform working directory: $(pwd)"
+              echo "Workspace contents:" && ls -al
               printf '%s\n' "{{inputs.parameters.terraform_vars}}" > /tmp/terraform-vars.txt
               while IFS= read -r line; do
                 [ -z "$line" ] && continue
                 case "$line" in
-                  -var=*|-var-file=*|-var|-var-file)
+                  -var-file=*)
+                    VAR_FILE=${line#-var-file=}
+                    if [ -d "$VAR_FILE" ]; then
+                      echo "Detected directory for var file: $VAR_FILE"
+                    elif [ -f "$VAR_FILE" ]; then
+                      echo "Var file located: $VAR_FILE"
+                    else
+                      echo "Var file missing: $VAR_FILE"
+                      echo "Listing current and envs directories for debugging:" && ls -al && ls -al envs || true
+                    fi
+                    VAR_ARGS="$VAR_ARGS $line"
+                    ;;
+                  -var=*|-var|-var-file)
                     VAR_ARGS="$VAR_ARGS $line"
                     ;;
                   -*)
