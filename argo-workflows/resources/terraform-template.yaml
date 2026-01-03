@@ -39,6 +39,10 @@ spec:
         value: ""
       - name: head_repo_name
         value: ""
+      - name: aws_region
+        value: ""
+      - name: aws_role_arn
+        value: ""
   entrypoint: main
   activeDeadlineSeconds: 3600
   ttlStrategy:
@@ -75,10 +79,22 @@ spec:
                   value: "{{workflow.parameters.repo_url}}"
                 - name: branch
                   value: "{{workflow.parameters.branch}}"
+          - name: configure-aws
+            template: configure-aws
+            dependencies:
+              - clone
+            arguments:
+              parameters:
+                - name: aws_role_arn
+                  value: "{{workflow.parameters.aws_role_arn}}"
+                - name: aws_region
+                  value: "{{workflow.parameters.aws_region}}"
+                - name: session_name
+                  value: "{{workflow.parameters.commit_sha}}"
           - name: terraform-init
             template: terraform-init
             dependencies:
-              - clone
+              - configure-aws
             arguments:
               parameters:
                 - name: terraform_version
@@ -218,6 +234,78 @@ spec:
           limits:
             memory: 128Mi
             cpu: 200m
+    - name: configure-aws
+      inputs:
+        parameters:
+          - name: aws_role_arn
+          - name: aws_region
+          - name: session_name
+      container:
+        image: amazon/aws-cli:2.15.30
+        workingDir: /workspace
+        command:
+          - sh
+          - -c
+        args:
+          - |
+            set -euo pipefail
+            ROLE_ARN="{{inputs.parameters.aws_role_arn}}"
+            REGION="{{inputs.parameters.aws_region}}"
+            SESSION_NAME="{{inputs.parameters.session_name}}"
+
+            mkdir -p /workspace/.aws
+            touch /workspace/.aws/credentials /workspace/.aws/config
+            chmod 600 /workspace/.aws/credentials /workspace/.aws/config
+
+            if [ -z "$ROLE_ARN" ]; then
+              echo "No AWS role ARN provided; leaving credentials empty."
+              exit 0
+            fi
+
+            REGION_VALUE=${REGION:-us-east-1}
+            SESSION_VALUE=${SESSION_NAME:-terraform-session}
+            SESSION_VALUE=${SESSION_VALUE:0:64}
+
+            echo "Assuming role $ROLE_ARN with session name $SESSION_VALUE in $REGION_VALUE"
+
+            STS_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_VALUE" --duration-seconds 3600 --region "$REGION_VALUE" --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
+
+            if [ -z "$STS_OUTPUT" ]; then
+              echo "Failed to assume role $ROLE_ARN"
+              exit 1
+            fi
+
+            IFS=$'\t' read -r ACCESS_KEY SECRET_KEY SESSION_TOKEN <<<"$STS_OUTPUT"
+
+            if [ -z "$ACCESS_KEY" ] || [ "$ACCESS_KEY" = "None" ]; then
+              echo "Failed to assume role $ROLE_ARN"
+              exit 1
+            fi
+
+            {
+              echo "[default]"
+              echo "aws_access_key_id=$ACCESS_KEY"
+              echo "aws_secret_access_key=$SECRET_KEY"
+              echo "aws_session_token=$SESSION_TOKEN"
+            } > /workspace/.aws/credentials
+
+            {
+              echo "[default]"
+              echo "region=$REGION_VALUE"
+              echo "output=json"
+            } > /workspace/.aws/config
+
+            echo "Wrote temporary credentials for role $ROLE_ARN"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 50m
+          limits:
+            memory: 128Mi
+            cpu: 100m
     - name: terraform-init
       inputs:
         parameters:
@@ -255,6 +343,17 @@ spec:
           limits:
             memory: 512Mi
             cpu: 750m
+        env:
+          - name: AWS_PROFILE
+            value: default
+          - name: AWS_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_DEFAULT_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_SHARED_CREDENTIALS_FILE
+            value: /workspace/.aws/credentials
+          - name: AWS_CONFIG_FILE
+            value: /workspace/.aws/config
     - name: terraform-validate
       inputs:
         parameters:
@@ -284,6 +383,17 @@ spec:
           limits:
             memory: 768Mi
             cpu: 400m
+        env:
+          - name: AWS_PROFILE
+            value: default
+          - name: AWS_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_DEFAULT_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_SHARED_CREDENTIALS_FILE
+            value: /workspace/.aws/credentials
+          - name: AWS_CONFIG_FILE
+            value: /workspace/.aws/config
     - name: terraform-fmt-check
       inputs:
         parameters:
@@ -316,6 +426,17 @@ spec:
           limits:
             memory: 256Mi
             cpu: 200m
+        env:
+          - name: AWS_PROFILE
+            value: default
+          - name: AWS_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_DEFAULT_REGION
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+          - name: AWS_SHARED_CREDENTIALS_FILE
+            value: /workspace/.aws/credentials
+          - name: AWS_CONFIG_FILE
+            value: /workspace/.aws/config
     - name: terraform-execute
       inputs:
         parameters:
@@ -423,6 +544,23 @@ spec:
           limits:
             memory: 1Gi
             cpu: "1"
+        env:
+          - name: AWS_PROFILE
+            value: "{{workflow.parameters.aws_profile}}"
+          - name: AWS_REGION
+            value: "{{workflow.parameters.aws_region}}"
+          - name: AWS_DEFAULT_REGION
+            value: "{{workflow.parameters.aws_region}}"
+          - name: AWS_SHARED_CREDENTIALS_FILE
+            value: /workspace/.aws/credentials
+          - name: AWS_CONFIG_FILE
+            value: /workspace/.aws/config
+          - name: AWS_ACCESS_KEY_ID
+            value: "{{workflow.parameters.aws_access_key_id}}"
+          - name: AWS_SECRET_ACCESS_KEY
+            value: "{{workflow.parameters.aws_secret_access_key}}"
+          - name: AWS_SESSION_TOKEN
+            value: "{{workflow.parameters.aws_session_token}}"
     - name: notify-github
       container:
         image: curlimages/curl:8.4.0
@@ -450,22 +588,16 @@ spec:
                 return 1
               fi
 
-              local response http_code
+              local response http_code payload
               response=$(mktemp)
+              payload=$(printf '{\n  "state": "%s",\n  "context": "argo/terraform",\n  "target_url": "%s",\n  "description": "Workflow %s finished with status %s"\n}\n' "$STATE" "$TARGET_URL" "{{workflow.name}}" "$STATUS")
+
               http_code=$(curl -sS -w "%{http_code}" -o "$response" \
                 -X POST \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/$owner/$name/statuses/{{workflow.parameters.commit_sha}}" \
-                -d @- <<EOF
-            {
-              "state": "$STATE",
-              "context": "argo/terraform",
-              "target_url": "$TARGET_URL",
-              "description": "Workflow {{workflow.name}} finished with status $STATUS"
-            }
-            EOF
-              )
+                --data "$payload")
 
               if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
                 echo "Posted GitHub status to $owner/$name (HTTP $http_code)"
