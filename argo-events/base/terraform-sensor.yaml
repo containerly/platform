@@ -134,10 +134,6 @@ spec:
                 dependencyName: pr-event
                 dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "us-east-1" .Input.body.pull_request.head.repo.awsRegion }}{{ else }}{{ default "us-east-1" .Input.body.repository.awsRegion }}{{ end }}'
               dest: spec.arguments.parameters.15.value
-            - src:
-                dependencyName: pr-event
-                dataTemplate: '{{ if .Input.body.pull_request.head.repo }}{{ default "" .Input.body.pull_request.head.repo.awsRoleArn }}{{ else }}{{ default "" .Input.body.repository.awsRoleArn }}{{ end }}'
-              dest: spec.arguments.parameters.16.value
       retryStrategy:
         steps: 3
 ---
@@ -237,10 +233,6 @@ spec:
                 dependencyName: push-event
                 dataTemplate: '{{ default "us-east-1" .Input.body.repository.awsRegion }}'
               dest: spec.arguments.parameters.15.value
-            - src:
-                dependencyName: push-event
-                dataTemplate: '{{ default "" .Input.body.repository.awsRoleArn }}'
-              dest: spec.arguments.parameters.16.value
             - src:
                 dependencyName: push-event
                 dataTemplate: '{{ default "containerly" .Input.body.repository.owner.login }}'
