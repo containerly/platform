@@ -43,6 +43,8 @@ spec:
         value: ""
       - name: aws_role_arn
         value: ""
+      - name: aws_credentials_secret
+        value: "secret-to-be-created"
   entrypoint: main
   activeDeadlineSeconds: 3600
   ttlStrategy:
@@ -257,12 +259,33 @@ spec:
             touch /workspace/.aws/credentials /workspace/.aws/config
             chmod 600 /workspace/.aws/credentials /workspace/.aws/config
 
+            REGION_VALUE=${REGION:-${AWS_REGION:-us-east-1}}
+
             if [ -z "$ROLE_ARN" ]; then
-              echo "No AWS role ARN provided; leaving credentials empty."
+              if [ -z "${AWS_ACCESS_KEY_ID:-}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:-}" ]; then
+                echo "No AWS role ARN provided and static credentials were not supplied."
+                exit 1
+              fi
+
+              {
+                echo "[default]"
+                echo "aws_access_key_id=${AWS_ACCESS_KEY_ID}"
+                echo "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}"
+                if [ -n "${AWS_SESSION_TOKEN:-}" ]; then
+                  echo "aws_session_token=${AWS_SESSION_TOKEN}"
+                fi
+              } > /workspace/.aws/credentials
+
+              {
+                echo "[default]"
+                echo "region=$REGION_VALUE"
+                echo "output=json"
+              } > /workspace/.aws/config
+
+              echo "Wrote static AWS credentials from mounted secret."
               exit 0
             fi
 
-            REGION_VALUE=${REGION:-us-east-1}
             SESSION_VALUE=${SESSION_NAME:-terraform-session}
             SESSION_VALUE=${SESSION_VALUE:0:64}
 
@@ -296,6 +319,9 @@ spec:
             } > /workspace/.aws/config
 
             echo "Wrote temporary credentials for role $ROLE_ARN"
+        envFrom:
+          - secretRef:
+              name: "{{workflow.parameters.aws_credentials_secret}}"
         volumeMounts:
           - name: workspace
             mountPath: /workspace
@@ -336,6 +362,9 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace
+        envFrom:
+          - secretRef:
+              name: "{{workflow.parameters.aws_credentials_secret}}"
         resources:
           requests:
             memory: 256Mi
@@ -376,6 +405,9 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace
+        envFrom:
+          - secretRef:
+              name: "{{workflow.parameters.aws_credentials_secret}}"
         resources:
           requests:
             memory: 256Mi
@@ -419,6 +451,9 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace
+        envFrom:
+          - secretRef:
+              name: "{{workflow.parameters.aws_credentials_secret}}"
         resources:
           requests:
             memory: 128Mi
@@ -537,6 +572,9 @@ spec:
         volumeMounts:
           - name: workspace
             mountPath: /workspace
+        envFrom:
+          - secretRef:
+              name: "{{workflow.parameters.aws_credentials_secret}}"
         resources:
           requests:
             memory: 256Mi
@@ -546,21 +584,15 @@ spec:
             cpu: "1"
         env:
           - name: AWS_PROFILE
-            value: "{{workflow.parameters.aws_profile}}"
+            value: default
           - name: AWS_REGION
-            value: "{{workflow.parameters.aws_region}}"
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
           - name: AWS_DEFAULT_REGION
-            value: "{{workflow.parameters.aws_region}}"
+            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
           - name: AWS_SHARED_CREDENTIALS_FILE
             value: /workspace/.aws/credentials
           - name: AWS_CONFIG_FILE
             value: /workspace/.aws/config
-          - name: AWS_ACCESS_KEY_ID
-            value: "{{workflow.parameters.aws_access_key_id}}"
-          - name: AWS_SECRET_ACCESS_KEY
-            value: "{{workflow.parameters.aws_secret_access_key}}"
-          - name: AWS_SESSION_TOKEN
-            value: "{{workflow.parameters.aws_session_token}}"
     - name: notify-github
       container:
         image: curlimages/curl:8.4.0
