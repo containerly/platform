@@ -9,7 +9,7 @@ metadata:
 spec:
   general:
     serviceName: opensearch-cluster
-    version: 2.11.1
+    version: 3.4.0
     httpPort: 9200
     setVMMaxMapCount: true
     additionalConfig:
@@ -24,7 +24,7 @@ spec:
         enabled: false
   dashboards:
     enable: true
-    version: 2.11.1
+    version: 3.4.0
     additionalConfig:
       opensearch.hosts: '["http://opensearch-cluster:9200"]'
       opensearch.ssl.verificationMode: "none"
