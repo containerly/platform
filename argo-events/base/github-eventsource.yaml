@@ -29,7 +29,8 @@ spec:
       repositories:
         - owner: containerly
           names:
-            - openapi-ruby-on-rails
+            - terraform
+            # - openapi-ruby-on-rails
       webhook:
         endpoint: /push
         port: "12000"
