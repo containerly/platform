@@ -40,7 +40,7 @@ spec:
       - name: head_repo_name
         value: ""
       - name: aws_region
-        value: ""
+        value: "us-east-1"
       - name: aws_role_arn
         value: ""
       - name: aws_credentials_secret
@@ -376,9 +376,9 @@ spec:
           - name: AWS_PROFILE
             value: default
           - name: AWS_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_DEFAULT_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_SHARED_CREDENTIALS_FILE
             value: /workspace/.aws/credentials
           - name: AWS_CONFIG_FILE
@@ -419,9 +419,9 @@ spec:
           - name: AWS_PROFILE
             value: default
           - name: AWS_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_DEFAULT_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_SHARED_CREDENTIALS_FILE
             value: /workspace/.aws/credentials
           - name: AWS_CONFIG_FILE
@@ -465,9 +465,9 @@ spec:
           - name: AWS_PROFILE
             value: default
           - name: AWS_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_DEFAULT_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_SHARED_CREDENTIALS_FILE
             value: /workspace/.aws/credentials
           - name: AWS_CONFIG_FILE
@@ -586,9 +586,9 @@ spec:
           - name: AWS_PROFILE
             value: default
           - name: AWS_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_DEFAULT_REGION
-            value: "{{workflow.parameters.aws_region | default \"us-east-1\"}}"
+            value: "{{workflow.parameters.aws_region}}"
           - name: AWS_SHARED_CREDENTIALS_FILE
             value: /workspace/.aws/credentials
           - name: AWS_CONFIG_FILE
