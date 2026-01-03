@@ -9289,7 +9289,7 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: opensearch-operator-validating-webhook-configuration
   annotations:
-    cert-manager.io/inject-ca-from: default/opensearch-operator-serving-cert
+    cert-manager.io/inject-ca-from: logging/opensearch-operator-serving-cert
 webhooks:
 - name: vopensearchactiongroup.opensearch.opster.io
   admissionReviewVersions:
