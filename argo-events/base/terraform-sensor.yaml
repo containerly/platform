@@ -94,8 +94,18 @@ spec:
               dest: spec.arguments.parameters.4.value
             - src:
                 dependencyName: pr-event
-                dataTemplate: '{{ default "." .Input.body.pull_request.head.repo.terraformDir }}'
+                dataTemplate: >-
+                  {{- $ref := .Input.body.pull_request.head.ref -}}
+                  {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
+                  envs/{{ $env }}
               dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: pr-event
+                dataTemplate: >-
+                  {{- $ref := .Input.body.pull_request.head.ref -}}
+                  {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
+                  envs/{{ $env }}/{{ $env }}.auto.tfvars
+              dest: spec.arguments.parameters.8.value
             - src:
                 dependencyName: pr-event
                 dataTemplate: '{{ default "containerly" .Input.body.repository.owner.login }}'
@@ -201,8 +211,18 @@ spec:
               dest: spec.arguments.parameters.4.value
             - src:
                 dependencyName: push-event
-                dataTemplate: '{{ default "." .Input.body.repository.terraformDir }}'
+                dataTemplate: >-
+                  {{- $ref := trimPrefix .Input.body.ref "refs/heads/" -}}
+                  {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
+                  envs/{{ $env }}
               dest: spec.arguments.parameters.5.value
+            - src:
+                dependencyName: push-event
+                dataTemplate: >-
+                  {{- $ref := trimPrefix .Input.body.ref "refs/heads/" -}}
+                  {{- $env := regexFind "^(dev|prod)" $ref | default "dev" -}}
+                  envs/{{ $env }}/{{ $env }}.auto.tfvars
+              dest: spec.arguments.parameters.8.value
             - src:
                 dependencyName: push-event
                 dataTemplate: '{{ default "containerly" .Input.body.repository.owner.login }}'
