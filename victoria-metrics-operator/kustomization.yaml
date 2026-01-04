@@ -3,6 +3,13 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: victoria-metrics-system
 resources:
+  - resources/demo-app.yaml
+  - resources/vm-single.yaml
+  - resources/vm-alertmanager.yaml
+  - resources/vm-agent.yaml
+  - resources/vm-service-scrape.yaml
+  - resources/vm-rule.yaml
+  - resources/vm-alert.yaml
   - https://github.com/VictoriaMetrics/operator/releases/download/v0.66.1/install-with-webhook.yaml
 
 
