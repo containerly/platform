@@ -15,4 +15,5 @@ resources:
   - base/fluent-operator.yaml
   - base/strimzi-cluster-operator.yaml
   - base/sealed-secrets.yaml
+  - base/victoria-metrics-operator.yaml
   - base/opensearch-operator.yaml
