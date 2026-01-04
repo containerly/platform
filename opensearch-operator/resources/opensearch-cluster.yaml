@@ -7,7 +7,7 @@ metadata:
   namespace: default
 spec:
   security:
-    config:
+    config: {}
     tls:
        http:
          generate: true
