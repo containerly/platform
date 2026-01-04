@@ -6,8 +6,6 @@ metadata:
 spec:
   project: default
   source:
-    kustomize:
-      buildOptions: "--enable-helm"
     path: opensearch-operator
     repoURL: https://github.com/containerly/platform
     targetRevision: HEAD
