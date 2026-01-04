@@ -8,7 +8,6 @@ resources:
 helmCharts:
   - name: opensearch-operator
     repo: https://opensearch-project.github.io/opensearch-k8s-operator/
-    # version: "2.12.0"   # optionally pin a chart version
     releaseName: opensearch-operator
     namespace: opensearch-system
     includeCRDs: true
