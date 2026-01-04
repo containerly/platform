@@ -1,19 +1,4 @@
 ---
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: opensearch-initial-admin-password
-  namespace: default
-spec:
-  encryptedData:
-    # ChangeMe_123!
-    OPENSEARCH_INITIAL_ADMIN_PASSWORD: AgCvnJnJOKKN4J/MJGV692jnpFkmz02lTi0TKtjnWzReQWMEfV8FjJkL0w40odvIzRG860uuTGyZCKoAkeMVfajD1UGmBcl5UbY6LFMjtoOmMzGXG8VdgN7Ixs+KRiMogczIQq7dudBHgirho1cpqgC7kt/YfpzJUbLH4updqVIDZwY24YaT6okHuFqSXz7Ne+3iTY7NHlImBKdr8qsJOCH35qmC8eZ+xapWna2X30E35PCNqtcmF1gplQ3TWXIuzBP8paoDmcDr8cwW6ylp0xx1/UcJfHMv//9FXyHtLQap8qkafbGEEAFSqgRpDXorJx/fhZbYkoGquO53YqTkE+dD8BUeHgjnpx/bAy0hrynSB5uAQ3Jf4sQg7tVmUO8en5qcWfDZvVlJOJ8uyNVbNwhlDT8Vq3HrXr2YWFSJFh/9Y/IGIswrlLdy/nmVduSf1ipRHOwrBU8KpijagGn39VGL8JGPOb4ylk94GJLvUYD87U8nTucvkIayE7oKVt8aOhG4osbvft8i7/xhJQIxDz9QvFNQz45RV039vJTJQH1w+HgqKT505i3DUwPjc398f+wkxrTh2RuBIuvH3JuLsge1aNeQNZksMP0hxLtTyGuwtYhR1G+3ikbmz3GRdhxlsXiXIu0rDtrp3f2JGYIEZQzxS/kmbRfROf1S7wH9YjNvjxXEj6jdS2qhj1PPvCx+X5iuuSJFMBuKqnQ+afx1
-  template:
-    metadata:
-      name: opensearch-initial-admin-password
-      namespace: default
-    type: Opaque
----
 apiVersion: opensearch.opster.io/v1
 kind: OpenSearchCluster
 metadata:
@@ -52,3 +37,18 @@ spec:
       env:
         - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
           value: "Password9!"
+    - component: nodes
+      replicas: 1
+      roles:
+        - "data"
+      resources:
+        requests:
+          memory: "2Gi"
+          cpu: "500m"
+        limits:
+          memory: "2Gi"
+          cpu: "500m"
+      env:
+        - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+          value: "Password9!"
+
