@@ -648,16 +648,22 @@ spec:
                 return 1
               fi
 
-              local response http_code payload
+              local response http_code
               response=$(mktemp)
-              payload=$(printf '{\n  "state": "%s",\n  "context": "argo/terraform",\n  "target_url": "%s",\n  "description": "Workflow %s finished with status %s"\n}\n' "$STATE" "$TARGET_URL" "{{workflow.name}}" "$STATUS")
-
               http_code=$(curl -sS -w "%{http_code}" -o "$response" \
                 -X POST \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/$owner/$name/statuses/{{workflow.parameters.commit_sha}}" \
-                --data "$payload")
+                -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/terraform",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS"
+            }
+            EOF
+              )
 
               if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
                 echo "Posted GitHub status to $owner/$name (HTTP $http_code)"
@@ -673,6 +679,20 @@ spec:
 
             post_status "{{workflow.parameters.repo_owner}}" "{{workflow.parameters.repo_name}}" || \
               post_status "{{workflow.parameters.head_repo_owner}}" "{{workflow.parameters.head_repo_name}}"
+
+            curl -sS -X POST \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/{{workflow.parameters.repo_owner}}/{{workflow.parameters.repo_name}}/statuses/{{workflow.parameters.commit_sha}}" \
+              -d @- <<EOF
+            {
+              "state": "$STATE",
+              "context": "argo/terraform",
+              "target_url": "$TARGET_URL",
+              "description": "Workflow {{workflow.name}} finished with status $STATUS",
+              "sha": "{{workflow.parameters.commit_sha}}"
+            }
+            EOF
         volumeMounts:
           - name: github-token
             mountPath: /github-token
