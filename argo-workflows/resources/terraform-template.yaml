@@ -251,19 +251,44 @@ spec:
         args:
           - |
             set -euo pipefail
+            echo "==== AWS Configuration Debug ===="
             ROLE_ARN="{{inputs.parameters.aws_role_arn}}"
             REGION="{{inputs.parameters.aws_region}}"
             SESSION_NAME="{{inputs.parameters.session_name}}"
+
+            echo "Role ARN: '${ROLE_ARN}'"
+            echo "Region: '${REGION}'"
+            echo "Session Name: '${SESSION_NAME}'"
+
+            echo ""
+            echo "==== Environment Variables ===="
+            echo "AWS_ACCESS_KEY_ID is set: $([ -n "${AWS_ACCESS_KEY_ID:-}" ] && echo 'YES (length: '${#AWS_ACCESS_KEY_ID}')' || echo 'NO')"
+            echo "AWS_SECRET_ACCESS_KEY is set: $([ -n "${AWS_SECRET_ACCESS_KEY:-}" ] && echo 'YES (length: '${#AWS_SECRET_ACCESS_KEY}')' || echo 'NO')"
+            echo "AWS_SESSION_TOKEN is set: $([ -n "${AWS_SESSION_TOKEN:-}" ] && echo 'YES' || echo 'NO')"
+            echo "AWS_REGION env: '${AWS_REGION:-<not set>}'"
+
+            echo ""
+            echo "==== All AWS_* Environment Variables ===="
+            env | grep -E '^AWS_' || echo "No AWS_* variables found"
+
+            echo ""
+            echo "==== Secret Mount Verification ===="
+            echo "Secret name from parameter: {{workflow.parameters.aws_credentials_secret}}"
 
             mkdir -p /workspace/.aws
             touch /workspace/.aws/credentials /workspace/.aws/config
             chmod 600 /workspace/.aws/credentials /workspace/.aws/config
 
             REGION_VALUE=${REGION:-${AWS_REGION:-us-east-1}}
+            echo "Final region value: $REGION_VALUE"
 
             if [ -z "$ROLE_ARN" ]; then
+              echo ""
+              echo "==== Using Static Credentials Path ===="
               if [ -z "${AWS_ACCESS_KEY_ID:-}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:-}" ]; then
-                echo "No AWS role ARN provided and static credentials were not supplied."
+                echo "ERROR: No AWS role ARN provided and static credentials were not supplied."
+                echo "AWS_ACCESS_KEY_ID present: $([ -n "${AWS_ACCESS_KEY_ID:-}" ] && echo 'yes' || echo 'no')"
+                echo "AWS_SECRET_ACCESS_KEY present: $([ -n "${AWS_SECRET_ACCESS_KEY:-}" ] && echo 'yes' || echo 'no')"
                 exit 1
               fi
 
@@ -282,10 +307,13 @@ spec:
                 echo "output=json"
               } > /workspace/.aws/config
 
-              echo "Wrote static AWS credentials from mounted secret."
+              echo "✅ Wrote static AWS credentials from mounted secret."
+              echo "Access Key ID starts with: ${AWS_ACCESS_KEY_ID:0:10}..."
               exit 0
             fi
 
+            echo ""
+            echo "==== Using Role Assumption Path ===="
             SESSION_VALUE=${SESSION_NAME:-terraform-session}
             SESSION_VALUE=${SESSION_VALUE:0:64}
 
