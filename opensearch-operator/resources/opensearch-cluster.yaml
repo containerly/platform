@@ -8,6 +8,10 @@ spec:
   general:
     serviceName: my-first-cluster
     version: "3"
+  bootstrap:
+    env:
+      - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+        value: "Password9!"
   dashboards:
     enable: true
     version: "3"
