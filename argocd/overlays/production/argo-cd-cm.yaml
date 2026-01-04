@@ -7,6 +7,7 @@ data:
   ga.trackingid: 'UA-105170809-6'
   url: https://53cc6c0932dd.ngrok-free.app
   helm.enable: 'true'
+  kustomize.buildOptions: --enable-helm
   configManagementPlugins: |
     - name: flux
       generate:
