@@ -1,0 +1,27 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: demo
+  namespace: vm
+spec:
+  # Metrics source (VMCluster/VMSingle)
+  datasource:
+    url: "http://vmsingle-demo.vm.svc:8428"
+
+  # Where alert state and recording rules are stored
+  remoteWrite:
+    url: "http://vmsingle-demo.vm.svc:8428"
+
+  # Where the previous alert state is loaded from. Optional
+  remoteRead:
+    url: "http://vmsingle-demo.vm.svc:8428"
+
+  # Alertmanager URL for sending alerts
+  notifier:
+    url: "http://vmalertmanager-demo.vm.svc:9093"
+
+  # How often the rules are evaluated
+  evaluationInterval: "10s"
+
+  # Watch VMRule resources in all namespaces
+  selectAllByDefault: true
