@@ -12,3 +12,7 @@ helmCharts:
     releaseName: opensearch-operator
     namespace: opensearch-system
     includeCRDs: true
+  - name: opensearch-cluster
+    repo: https://github.com/opensearch-project/opensearch-k8s-operator/
+    releaseName: opensearch-cluster
+    namespace: opensearch-system
