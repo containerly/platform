@@ -19,17 +19,17 @@ spec:
         memory: "512Mi"
         cpu: "200m"
   nodePools:
-    - component: nodes
+    - component: masters
       replicas: 3
-      diskSize: "5Gi"
-      nodeSelector:
       resources:
-        requests:
-          memory: "2Gi"
-          cpu: "500m"
-        limits:
-          memory: "2Gi"
-          cpu: "500m"
+         requests:
+            memory: "4Gi"
+            cpu: "1000m"
+         limits:
+            memory: "4Gi"
+            cpu: "1000m"
       roles:
-        - "cluster_manager"
         - "data"
+        - "cluster_manager"
+      persistence:
+         emptyDir: {}
