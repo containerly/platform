@@ -12,6 +12,3 @@ helmCharts:
     releaseName: opensearch-operator
     namespace: opensearch-system
     includeCRDs: true
-    # valuesFile: values.yaml   # optionally provide values overrides
-
-
